@@ -15,5 +15,9 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
     upClickCount = 0;
     downClickCount = 0;
 
+    // Reset label kết quả BC/AB
+    const label = document.getElementById('labelABBC');
+    if (label) label.textContent = '';
+
     alert("Đã reset toàn bộ điểm UP và DOWN");
 });

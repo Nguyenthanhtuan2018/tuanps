@@ -1,9 +1,8 @@
+// upHandler.js
 window.selectedPointsUP = [];
 let isUpMode = false;
 let upClickCount = 0;
 let upMarkers = [];
-
-const ratioThreshold = window.waveSettings?.ratioAP ?? 60; // 60%
 
 document.getElementById('btnUp').addEventListener('click', () => {
     isUpMode = true;
@@ -39,6 +38,7 @@ chart.subscribeClick(param => {
 
     if (upClickCount === 3) {
         isUpMode = false;
+        const ratioThreshold = window.waveSettings?.ratioAP ?? 60; // 60%
         // Tính toán tỉ lệ BC/AB
         const A = window.selectedPointsUP[0];
         const B = window.selectedPointsUP[1];
