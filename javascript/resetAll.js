@@ -1,3 +1,4 @@
+// javascript/resetAll.js
 document.getElementById('btnResetAll').addEventListener('click', () => {
     // Xóa markers
     upMarkers = [];
