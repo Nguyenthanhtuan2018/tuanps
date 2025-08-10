@@ -12,14 +12,22 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
     // Xóa dữ liệu D-E (UP)
     window.selectedPointD = undefined;
     window.selectedPointE = undefined;
-    if (typeof stopPointMarker !== 'undefined') stopPointMarker = null;
-    if (typeof stopPointMarkerE !== 'undefined') stopPointMarkerE = null;
+    if (typeof stopPointMarker !== 'undefined')  stopPointMarker = null;   // D (UP)
+    if (typeof stopPointMarkerE !== 'undefined') stopPointMarkerE = null; // E (UP)
 
     // Xóa dữ liệu D-E (DOWN)
     window.selectedPointDDown = undefined;
     window.selectedPointEDown = undefined;
-    if (typeof stopPointDownMarker !== 'undefined') stopPointDownMarker = null;
-    if (typeof stopPointDownMarkerE !== 'undefined') stopPointDownMarkerE = null;
+    if (typeof stopPointDownMarker !== 'undefined')  stopPointDownMarker = null;   // D (DOWN)
+    if (typeof stopPointDownMarkerE !== 'undefined') stopPointDownMarkerE = null;  // E (DOWN)
+
+    // *** MỚI: Xóa dữ liệu F ***
+    // UP
+    window.selectedPointF = undefined;
+    if (typeof stopPointFMarker !== 'undefined') stopPointFMarker = null;
+    // DOWN
+    window.selectedPointFDown = undefined;
+    if (typeof stopPointDownFMarker !== 'undefined') stopPointDownFMarker = null;
 
     // Reset trạng thái
     isUpMode = false;
@@ -29,7 +37,10 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
 
     // Reset label kết quả BC/AB
     const label = document.getElementById('labelABBC');
-    if (label) label.textContent = '';
+    if (label) {
+        label.textContent = '';
+        label.style.color = '';
+    }
 
-    alert("Đã reset toàn bộ điểm UP, DOWN, D và E");
+    alert("Đã reset A, B, C, D, E, F (UP & DOWN)");
 });
