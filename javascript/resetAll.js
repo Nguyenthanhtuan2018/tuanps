@@ -41,6 +41,12 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
         label.textContent = '';
         label.style.color = '';
     }
+    // Reset label EF/DE
+    const labelDEEF = document.getElementById('labelDEEF');
+    if (labelDEEF) {
+    labelDEEF.textContent = '';
+    labelDEEF.style.color = '';
+    }
 
     alert("Đã reset A, B, C, D, E, F (UP & DOWN)");
 });

@@ -128,6 +128,7 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
                     }
                 }
                 if (pointF) {
+                    // Lưu & marker F
                     window.selectedPointF = {
                         label: 'F',
                         time: pointF.time,
@@ -141,15 +142,43 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
                         shape: 'circle',
                         text: 'F'
                     };
+
+                    // ===== EF/DE trên #labelDEEF =====
+                    // EF = |low.E - high.F|, DE = |high.D - low.E|
+                    const EF = Math.abs(pointE.low - pointF.high);
+                    const DE = Math.abs(pointD.high - pointE.low);
+                    const ratio = DE === 0 ? Infinity : (EF / DE) * 100;
+
+                    const ratioThreshold = (window.waveSettings && typeof window.waveSettings.ratioEFOverDE === 'number')
+                        ? window.waveSettings.ratioEFOverDE
+                        : 70; // mặc định 70%
+
+                    const label = document.getElementById('labelDEEF');
+                    if (label) {
+                        const ratioText = Number.isFinite(ratio) ? ratio.toFixed(2) : '∞';
+                        if (ratio > ratioThreshold) {
+                            label.textContent = `EF/DE: KHÔNG ĐẠT (${ratioText}%)`;
+                            label.style.color = 'red';
+                        } else {
+                            label.textContent = `EF/DE: ĐẠT (${ratioText}%)`;
+                            label.style.color = 'green';
+                        }
+                    }
                 } else {
                     window.selectedPointF = undefined;
+                    const label = document.getElementById('labelDEEF');
+                    if (label) { label.textContent = ''; label.style.color = ''; }
                 }
             } else {
                 window.selectedPointF = undefined;
+                const label = document.getElementById('labelDEEF');
+                if (label) { label.textContent = ''; label.style.color = ''; }
             }
         } else {
-            // Không có E ⇒ không tính F
+            // Không có E ⇒ không tính F và không tính EF/DE
             window.selectedPointF = undefined;
+            const label = document.getElementById('labelDEEF');
+            if (label) { label.textContent = ''; label.style.color = ''; }
         }
 
         // Gộp markers AN TOÀN (không dựa vào window.upMarkers/downMarkers)

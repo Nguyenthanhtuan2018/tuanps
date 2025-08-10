@@ -14,5 +14,6 @@ if (typeof chart !== 'undefined') {
 // Các tham số cấu hình cho thuật toán sóng
 window.waveSettings = {
   ratioAP: 60,    // Tỉ lệ tối đa A/P (%)
-  minValueP: 1    // Biên độ tối thiểu của sóng P (>= 6)
+  minValueP: 1,    // Biên độ tối thiểu của sóng P (>= 6)
+  ratioEFOverDE: 70 // ngưỡng EF/DE (%)
 };
