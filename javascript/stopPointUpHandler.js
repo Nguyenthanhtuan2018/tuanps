@@ -223,11 +223,11 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
       if (label) {
         const ratioText = Number.isFinite(ratio) ? ratio.toFixed(2) : '∞';
         if (ratio > ratioThreshold) {
-          label.textContent = `EF/DE: KHÔNG ĐẠT (${ratioText}%)`;
-          label.style.color = 'red';
-        } else {
           label.textContent = `EF/DE: ĐẠT (${ratioText}%)`;
           label.style.color = 'green';
+        } else {
+          label.textContent = `EF/DE: KHÔNG ĐẠT (${ratioText}%)`;
+          label.style.color = 'red';
         }
       }
     } else {

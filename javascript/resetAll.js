@@ -29,6 +29,15 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
     window.selectedPointFDown = undefined;
     if (typeof stopPointDownFMarker !== 'undefined') stopPointDownFMarker = null;
 
+    // UP
+    window.selectedPointG = undefined;
+    if (typeof stopPointGMarker !== 'undefined') stopPointGMarker = null;
+
+    // DOWN
+    window.selectedPointGDown = undefined; 
+    if (typeof stopPointDownGMarker !== 'undefined') stopPointDownGMarker = null;
+
+
     // Reset trạng thái
     isUpMode = false;
     isSelectingDown = false;
