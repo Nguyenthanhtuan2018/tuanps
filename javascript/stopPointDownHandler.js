@@ -2,11 +2,12 @@
 
 // Biến trạng thái Stop Point cho DOWN
 let isStopPointDownMode = false;
-let stopPointDownMarker = null;
-let stopPointDownMarkerE = null; // marker điểm E
+let stopPointDownMarker = null;     // marker D
+let stopPointDownMarkerE = null;    // marker E
+let stopPointDownFMarker = null;    // marker F
 
 document.getElementById('btnStopPointDown').addEventListener('click', () => {
-    if (window.downSelection.length < 3) {
+    if (!Array.isArray(window.downSelection) || window.downSelection.length < 3) {
         alert("Vui lòng chọn đủ 3 điểm A, B, C cho DOWN trước khi tìm Stop Point!");
         return;
     }
@@ -15,11 +16,12 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
 
     const onClick = (param) => {
         if (!isStopPointDownMode) return;
-        if (!param.time || !param.seriesData) return;
+        if (!param?.time || !param?.seriesData) return;
 
         const priceData = param.seriesData.get(candleSeries);
         if (!priceData) return;
 
+        // Dataset theo khung hiện tại
         let dataArray;
         if (currentFrame === '1s') dataArray = data1s;
         else if (currentFrame === '1m') dataArray = data1m;
@@ -43,19 +45,18 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
         const indexStopPoint = dataArray.findIndex(c => c.time === param.time);
         if (indexStopPoint === -1 || indexStopPoint <= indexC) {
             alert("Điểm Stop Point phải nằm sau điểm C!");
-            return; // không thoát mode, chờ chọn lại
+            return; // giữ mode, chờ chọn lại
         }
 
-        // Tìm điểm D: low thấp nhất từ C đến stop point
-        let minLow = Infinity;
+        // D: low thấp nhất từ C -> stop
+        let minLowD = Infinity;
         let pointD = null;
         for (let i = indexC + 1; i <= indexStopPoint; i++) {
-            if (dataArray[i].low < minLow) {
-                minLow = dataArray[i].low;
+            if (dataArray[i].low < minLowD) {
+                minLowD = dataArray[i].low;
                 pointD = dataArray[i];
             }
         }
-
         if (!pointD) {
             alert("Không tìm thấy điểm D hợp lệ!");
             isStopPointDownMode = false;
@@ -70,7 +71,7 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
             low: pointD.low
         };
 
-        // Tìm điểm E: high cao nhất từ D đến stop point
+        // E: high cao nhất từ D -> stop
         const indexD = dataArray.findIndex(c => c.time === pointD.time);
         if (indexD === -1) {
             alert("Không tìm thấy điểm D trong dữ liệu!");
@@ -87,7 +88,6 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
                 pointE = dataArray[i];
             }
         }
-
         if (!pointE) {
             alert("Không tìm thấy điểm E hợp lệ!");
             isStopPointDownMode = false;
@@ -102,7 +102,7 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
             low: pointE.low
         };
 
-        // Tạo marker điểm D (màu xanh lá, dưới nến)
+        // Markers D/E
         stopPointDownMarker = {
             time: pointD.time,
             position: 'belowBar',
@@ -110,8 +110,6 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
             shape: 'arrowDown',
             text: 'D'
         };
-
-        // Tạo marker điểm E (màu xanh lá, trên nến)
         stopPointDownMarkerE = {
             time: pointE.time,
             position: 'aboveBar',
@@ -120,10 +118,57 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
             text: 'E'
         };
 
-        // Cập nhật marker mới, giữ marker UP, DOWN, D và E
-        candleSeries.setMarkers([...upMarkers, ...downMarkers, stopPointMarker, stopPointDownMarker, stopPointDownMarkerE].filter(Boolean));
+        // NEW: F = low thấp nhất từ E -> stop point
+        stopPointDownFMarker = null;
+        window.selectedPointFDown = undefined;
 
-        alert(`Đã chọn điểm D (Stop Point DOWN) Low = ${pointD.low} và điểm E High = ${pointE.high} tại thời gian tương ứng.`);
+        const indexE = dataArray.findIndex(c => c.time === pointE.time);
+        if (indexE !== -1 && indexStopPoint > indexE) {
+            let minLowF = Infinity;
+            let pointF = null;
+            for (let i = indexE + 1; i <= indexStopPoint; i++) {
+                if (dataArray[i].low < minLowF) { // chọn F sớm nhất khi bằng nhau
+                    minLowF = dataArray[i].low;
+                    pointF   = dataArray[i];
+                }
+            }
+            if (pointF) {
+                window.selectedPointFDown = {
+                    label: 'F',
+                    time: pointF.time,
+                    high: pointF.high,
+                    low: pointF.low
+                };
+                // Marker F: dưới nến, màu tím
+                stopPointDownFMarker = {
+                    time: pointF.time,
+                    position: 'belowBar',
+                    color: 'purple',
+                    shape: 'circle',
+                    text: 'F'
+                };
+            }
+        }
+
+        // Giữ A/B/C và các marker hiện có (UP/DOWN) + D/E/F
+        const markers = [
+            ...(typeof upMarkers   !== 'undefined' && Array.isArray(upMarkers)   ? upMarkers   : []),
+            ...(typeof downMarkers !== 'undefined' && Array.isArray(downMarkers) ? downMarkers : []),
+            stopPointMarker,            // D/E của chiều UP (nếu có)
+            stopPointDownMarker,        // D (DOWN)
+            stopPointDownMarkerE,       // E (DOWN)
+            stopPointDownFMarker        // F (DOWN)
+        ].filter(Boolean);
+
+        candleSeries.setMarkers(markers);
+
+        // Thông báo
+        let msg = `DOWN: D (Low = ${pointD.low}), E (High = ${pointE.high})`;
+        if (window.selectedPointFDown) {
+            msg += `, F (Low = ${window.selectedPointFDown.low})`;
+        }
+        msg += ` tại ~ ${new Date(pointD.time * 1000).toLocaleTimeString('vi-VN', { hour12: false })}`;
+        alert(msg);
 
         isStopPointDownMode = false;
         chart.unsubscribeClick(onClick);
