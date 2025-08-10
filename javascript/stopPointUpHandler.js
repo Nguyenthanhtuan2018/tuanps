@@ -3,6 +3,7 @@
 // Biến trạng thái Stop Point cho UP
 let isStopPointMode = false;
 let stopPointMarker = null;
+let stopPointMarkerE = null;
 
 document.getElementById('btnStopPointUp').addEventListener('click', () => {
     if (window.selectedPointsUP.length < 3) {
@@ -32,32 +33,27 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
         return;
     }
 
-    // Nếu đã có điểm D trước đó thì xóa marker D cũ
-    if (stopPointMarker) {
-        stopPointMarker = null;
-    }
+    // Nếu đã có điểm D hoặc E trước đó thì xóa marker cũ
+    stopPointMarker = null;
+    stopPointMarkerE = null;
 
-    // Bây giờ chờ user click 1 nến làm điểm stop point
     alert("Chế độ Stop Point: Vui lòng click 1 nến để chọn điểm Stop Point");
 
-    // Tạo hàm xử lý click chọn điểm Stop Point
+    // Hàm xử lý click chọn điểm Stop Point
     const onStopPointClick = (param) => {
         if (!isStopPointMode) return;
         if (!param.time || !param.seriesData) return;
 
-        // Lấy dữ liệu nến được click
         const candle = param.seriesData.get(candleSeries);
         if (!candle) return;
 
-        // Kiểm tra time click có trong đoạn từ C tới stop point không
-        // Tìm index stopPoint trong dataArray
         const stopIndex = dataArray.findIndex(c => c.time === param.time);
         if (stopIndex === -1 || stopIndex <= indexC) {
             alert("Vui lòng chọn nến sau điểm C!");
             return;
         }
 
-        // Tìm điểm D (nến có high lớn nhất từ C đến stop point)
+        // Tìm điểm D (High max từ C đến stop point)
         let maxHigh = -Infinity;
         let pointD = null;
         for (let i = indexC + 1; i <= stopIndex; i++) {
@@ -72,15 +68,32 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
             return;
         }
 
-        // Lưu điểm D
+        // Tìm điểm E (Low min từ D đến stop point)
+        const indexD = dataArray.findIndex(c => c.time === pointD.time);
+        let minLow = Infinity;
+        let pointE = null;
+        for (let i = indexD + 1; i <= stopIndex; i++) {
+            if (dataArray[i].low < minLow) {
+                minLow = dataArray[i].low;
+                pointE = dataArray[i];
+            }
+        }
+
+        // Lưu điểm D và E
         window.selectedPointD = {
             label: 'D',
             time: pointD.time,
             high: pointD.high,
             low: pointD.low
         };
+        window.selectedPointE = pointE ? {
+            label: 'E',
+            time: pointE.time,
+            high: pointE.high,
+            low: pointE.low
+        } : null;
 
-        // Tạo marker D màu xanh lá trên chart
+        // Marker D
         stopPointMarker = {
             time: pointD.time,
             position: 'aboveBar',
@@ -89,12 +102,33 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
             text: 'D'
         };
 
-        // Cập nhật marker trên chart (gộp UP, DOWN, D)
-        candleSeries.setMarkers([...upMarkers, ...downMarkers, stopPointMarker]);
+        // Marker E
+        if (pointE) {
+            stopPointMarkerE = {
+                time: pointE.time,
+                position: 'belowBar',
+                color: 'orange',
+                shape: 'arrowDown',
+                text: 'E'
+            };
+        } else {
+            stopPointMarkerE = null;
+        }
 
-        alert(`Đã chọn điểm D (Stop Point) với High = ${pointD.high} tại thời gian ${new Date(pointD.time * 1000).toLocaleTimeString()}`);
+        // Cập nhật markers lên chart (gộp upMarkers, downMarkers, D, E)
+        if (stopPointMarkerE) {
+            candleSeries.setMarkers([...upMarkers, ...downMarkers, stopPointMarker, stopPointMarkerE]);
+        } else {
+            candleSeries.setMarkers([...upMarkers, ...downMarkers, stopPointMarker]);
+        }
 
-        // Tắt chế độ Stop Point và huỷ sự kiện click này
+        let msg = `Đã chọn điểm D (High = ${pointD.high})`;
+        if (pointE) {
+            msg += ` và điểm E (Low = ${pointE.low})`;
+        }
+        msg += ` tại thời gian ${new Date(pointD.time * 1000).toLocaleTimeString()}`;
+        alert(msg);
+
         isStopPointMode = false;
         chart.unsubscribeClick(onStopPointClick);
     };
