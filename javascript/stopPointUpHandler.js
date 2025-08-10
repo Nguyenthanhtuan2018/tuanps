@@ -4,9 +4,10 @@
 let isStopPointMode = false;
 let stopPointMarker = null;
 let stopPointMarkerE = null;
+let stopPointFMarker = null; // marker cho điểm F
 
 document.getElementById('btnStopPointUp').addEventListener('click', () => {
-    if (window.selectedPointsUP.length < 3) {
+    if (!Array.isArray(window.selectedPointsUP) || window.selectedPointsUP.length < 3) {
         alert("Vui lòng chọn đủ 3 điểm A, B, C trước khi tìm Stop Point!");
         return;
     }
@@ -33,16 +34,17 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
         return;
     }
 
-    // Nếu đã có điểm D hoặc E trước đó thì xóa marker cũ
+    // Xóa marker D/E/F cũ trong state (render sẽ cập nhật lại)
     stopPointMarker = null;
     stopPointMarkerE = null;
+    stopPointFMarker = null;
 
     alert("Chế độ Stop Point: Vui lòng click 1 nến để chọn điểm Stop Point");
 
     // Hàm xử lý click chọn điểm Stop Point
     const onStopPointClick = (param) => {
         if (!isStopPointMode) return;
-        if (!param.time || !param.seriesData) return;
+        if (!param?.time || !param?.seriesData) return;
 
         const candle = param.seriesData.get(candleSeries);
         if (!candle) return;
@@ -102,7 +104,10 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
             text: 'D'
         };
 
-        // Marker E
+        // Marker E (nếu có) và Tìm F (high max từ E → stop point)
+        stopPointMarkerE = null;
+        stopPointFMarker = null;
+
         if (pointE) {
             stopPointMarkerE = {
                 time: pointE.time,
@@ -111,22 +116,61 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
                 shape: 'arrowDown',
                 text: 'E'
             };
+
+            const indexE = dataArray.findIndex(c => c.time === pointE.time);
+            if (indexE !== -1 && stopIndex > indexE) {
+                let maxHighF = -Infinity;
+                let pointF = null;
+                for (let i = indexE + 1; i <= stopIndex; i++) {
+                    if (dataArray[i].high > maxHighF) { // chọn F sớm nhất khi bằng nhau
+                        maxHighF = dataArray[i].high;
+                        pointF   = dataArray[i];
+                    }
+                }
+                if (pointF) {
+                    window.selectedPointF = {
+                        label: 'F',
+                        time: pointF.time,
+                        high: pointF.high,
+                        low: pointF.low
+                    };
+                    stopPointFMarker = {
+                        time: pointF.time,
+                        position: 'aboveBar',
+                        color: 'purple',
+                        shape: 'circle',
+                        text: 'F'
+                    };
+                } else {
+                    window.selectedPointF = undefined;
+                }
+            } else {
+                window.selectedPointF = undefined;
+            }
         } else {
-            stopPointMarkerE = null;
+            // Không có E ⇒ không tính F
+            window.selectedPointF = undefined;
         }
 
-        // Cập nhật markers lên chart (gộp upMarkers, downMarkers, D, E)
-        if (stopPointMarkerE) {
-            candleSeries.setMarkers([...upMarkers, ...downMarkers, stopPointMarker, stopPointMarkerE]);
-        } else {
-            candleSeries.setMarkers([...upMarkers, ...downMarkers, stopPointMarker]);
+        // Gộp markers AN TOÀN (không dựa vào window.upMarkers/downMarkers)
+        const baseMarkers = [];
+        if (typeof upMarkers !== 'undefined' && Array.isArray(upMarkers)) {
+            baseMarkers.push(...upMarkers); // giữ A/B/C
         }
+        if (typeof downMarkers !== 'undefined' && Array.isArray(downMarkers)) {
+            baseMarkers.push(...downMarkers);
+        }
+        if (stopPointMarker)  baseMarkers.push(stopPointMarker);
+        if (stopPointMarkerE) baseMarkers.push(stopPointMarkerE);
+        if (stopPointFMarker) baseMarkers.push(stopPointFMarker);
 
-        let msg = `Đã chọn điểm D (High = ${pointD.high})`;
-        if (pointE) {
-            msg += ` và điểm E (Low = ${pointE.low})`;
-        }
-        msg += ` tại thời gian ${new Date(pointD.time * 1000).toLocaleTimeString()}`;
+        candleSeries.setMarkers(baseMarkers);
+
+        // Thông điệp
+        let msg = `Đã chọn D (High = ${pointD.high})`;
+        if (pointE) msg += `, E (Low = ${pointE.low})`;
+        if (window.selectedPointF) msg += `, F (High = ${window.selectedPointF.high})`;
+        msg += ` tại ~ ${new Date(pointD.time * 1000).toLocaleTimeString('vi-VN', { hour12: false })}`;
         alert(msg);
 
         isStopPointMode = false;
