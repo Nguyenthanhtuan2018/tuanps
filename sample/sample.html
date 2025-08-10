@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sample 1.7 – Histogram tách OK & FAIL</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    button {
+      margin: 10px 10px 0 0;
+      padding: 6px 12px;
+    }
+    canvas {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Sample 1.7 – Biểu đồ mật độ sample theo discount (OK / FAIL riêng biệt)</h2>
+
+<input type="file" id="fileInput" accept=".json" />
+<button onclick="analyzeData()">Phân tích & Vẽ biểu đồ</button>
+
+<canvas id="histogramChart" width="900" height="300"></canvas>
+
+<script>
+  let rawData = [];
+
+  document.getElementById("fileInput").addEventListener("change", function (e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      try {
+        const json = JSON.parse(event.target.result);
+        rawData = json.map(d => ({
+          ...d,
+          discount: parseFloat(d.discount.replace('%', '')),
+          status: d.status || 'FAIL'
+        }));
+        alert("Đã load dữ liệu thành công!");
+      } catch (err) {
+        alert("Lỗi đọc file JSON: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  function analyzeData() {
+    if (rawData.length === 0) {
+      alert("Vui lòng import file JSON trước.");
+      return;
+    }
+
+    const discounts = rawData.map(d => d.discount);
+    const min = Math.floor(Math.min(...discounts));
+    const max = Math.ceil(Math.max(...discounts));
+    const binSize = 10;
+
+    const binCount = Math.ceil((max - min) / binSize);
+    const bins = Array.from({ length: binCount }, (_, i) => ({
+      label: `${min + i * binSize}–${min + (i + 1) * binSize}%`,
+      ok: 0,
+      fail: 0
+    }));
+
+    for (let d of rawData) {
+      const idx = Math.floor((d.discount - min) / binSize);
+      if (bins[idx]) {
+        if (d.status === 'OK') bins[idx].ok++;
+        else bins[idx].fail++;
+      }
+    }
+
+    drawGroupedChart(bins);
+  }
+
+  function drawGroupedChart(bins) {
+    const ctx = document.getElementById("histogramChart").getContext("2d");
+    if (window.histogramChartInstance) window.histogramChartInstance.destroy();
+
+    window.histogramChartInstance = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: bins.map(b => b.label),
+        datasets: [
+          {
+            label: "✅ OK",
+            data: bins.map(b => b.ok),
+            backgroundColor: "rgba(0, 200, 0, 0.7)"
+          },
+          {
+            label: "❌ FAIL",
+            data: bins.map(b => b.fail),
+            backgroundColor: "rgba(220, 0, 0, 0.7)"
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: "Số sample"
+            }
+          },
+          x: {
+            title: {
+              display: true,
+              text: "Khoảng discount (%)"
+            },
+            stacked: false
+          }
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: function(ctx) {
+                return `${ctx.dataset.label}: ${ctx.raw}`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

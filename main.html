@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Chart thời gian thực - 41I1F8000</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+  <script src="https://unpkg.com/lightweight-charts@4.0.1/dist/lightweight-charts.standalone.production.js"></script>
+  <style>
+    #chart {
+      width: 100%;
+      height: 600px;
+      position: relative;
+    }
+
+    #controls {
+      margin: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>Biểu đồ thời gian thực: 41I1F8000</h2>
+  <div id="controls">
+    <select id="timeframe">
+      <option value="1s">1 giây</option>
+      <option value="1m">1 phút</option>
+      <option value="5m">5 phút</option>
+    </select>
+    <button id="exportBtn">Export JSON</button>
+    <input type="file" id="importFile" style="display:none" accept=".json" multiple />
+    <button id="importBtn">Import JSON</button>
+    <button id="btnUp">UP</button>
+    <button id="btnDown">DOWN</button>
+    <button id="btnResetAll">Reset All</button>
+  </div>
+  <div id="chart"></div>
+
+  <!-- JavaScript đã tách -->
+  <script src="javascript/main.js"></script>
+  <script src="javascript/setting.js"></script>
+  <script src="javascript/upHandler.js"></script>
+  <script src="javascript/downHandler.js"></script>
+  <script src="javascript/resetAll.js"></script>
+
+</body>
+
+</html>

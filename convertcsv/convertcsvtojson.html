@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Convert CSV Tick to JSON Candle</title>
+</head>
+<body>
+  <h2>Convert Tick CSV ➜ JSON (1s / 1m / 5m)</h2>
+  <input type="file" id="csvFiles" accept=".csv" multiple />
+  <button id="btnConvert">Convert và Tải về</button>
+
+  <script>
+    document.getElementById('btnConvert').addEventListener('click', async () => {
+      const input = document.getElementById('csvFiles');
+      const files = Array.from(input.files);
+      if (files.length === 0) return alert("Vui lòng chọn ít nhất 1 file CSV!");
+
+      for (const file of files) {
+        const ticks = await parseCSV(file);
+        if (ticks.length === 0) continue;
+
+        ticks.sort((a, b) => a.time - b.time);
+        const data1s = toCandles(ticks, 1);
+        const data1m = toCandles(ticks, 60);
+        const data5m = toCandles(ticks, 300);
+
+        const dateStr = new Date(ticks[0].time * 1000).toISOString().split("T")[0];
+        const jsonData = {
+          date: dateStr,
+          data1s,
+          data1m,
+          data5m
+        };
+
+        const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `chart-data-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+    });
+
+    function parseCSV(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const lines = event.target.result.trim().split('\n');
+          const ticks = [];
+          for (const line of lines) {
+            const [id, timeStr, priceStr, volumeStr] = line.split(',');
+            const price = parseFloat(priceStr);
+            const volume = parseFloat(volumeStr);
+            const time = Date.parse(timeStr);
+            if (!isNaN(time) && !isNaN(price) && !isNaN(volume)) {
+              ticks.push({
+                time: Math.floor(time / 1000),
+                lastPrice: price
+              });
+            }
+          }
+          resolve(ticks);
+        };
+        reader.readAsText(file);
+      });
+    }
+
+    function toCandles(ticks, timeframeSec) {
+      const candles = {};
+      for (const tick of ticks) {
+        const t = Math.floor(tick.time / timeframeSec) * timeframeSec;
+        if (!candles[t]) {
+          candles[t] = {
+            time: t,
+            open: tick.lastPrice,
+            high: tick.lastPrice,
+            low: tick.lastPrice,
+            close: tick.lastPrice
+          };
+        } else {
+          candles[t].high = Math.max(candles[t].high, tick.lastPrice);
+          candles[t].low = Math.min(candles[t].low, tick.lastPrice);
+          candles[t].close = tick.lastPrice;
+        }
+      }
+      return Object.values(candles).sort((a, b) => a.time - b.time);
+    }
+  </script>
+</body>
+</html>
