@@ -118,7 +118,7 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
             text: 'E'
         };
 
-        // NEW: F = low thấp nhất từ E -> stop point
+        // F = low thấp nhất từ E -> stop point
         stopPointDownFMarker = null;
         window.selectedPointFDown = undefined;
 
@@ -147,7 +147,35 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
                     shape: 'circle',
                     text: 'F'
                 };
+
+                // ===== EF/DE & hiển thị #labelDEEF =====
+                // EF = |high.E - low.F|, DE = |low.D - high.E|
+                const EF = Math.abs(pointE.high - pointF.low);
+                const DE = Math.abs(pointD.low  - pointE.high);
+                const ratio = DE === 0 ? Infinity : (EF / DE) * 100;
+
+                const ratioThreshold = (window.waveSettings && typeof window.waveSettings.ratioEFOverDE === 'number')
+                    ? window.waveSettings.ratioEFOverDE
+                    : 70; // mặc định 70%
+
+                const label = document.getElementById('labelDEEF');
+                if (label) {
+                    const ratioText = Number.isFinite(ratio) ? ratio.toFixed(2) : '∞';
+                    if (ratio > ratioThreshold) {
+                        label.textContent = `EF/DE: KHÔNG ĐẠT (${ratioText}%)`;
+                        label.style.color = 'red';
+                    } else {
+                        label.textContent = `EF/DE: ĐẠT (${ratioText}%)`;
+                        label.style.color = 'green';
+                    }
+                }
+            } else {
+                const label = document.getElementById('labelDEEF');
+                if (label) { label.textContent = ''; label.style.color = ''; }
             }
+        } else {
+            const label = document.getElementById('labelDEEF');
+            if (label) { label.textContent = ''; label.style.color = ''; }
         }
 
         // Giữ A/B/C và các marker hiện có (UP/DOWN) + D/E/F
