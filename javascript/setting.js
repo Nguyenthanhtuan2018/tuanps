@@ -5,7 +5,7 @@ if (typeof chart !== 'undefined') {
   chart.applyOptions({
     timeScale: {
       barSpacing: 2,          // Mặc định
-      minBarSpacing: 0.1,     // Cho phép thu nhỏ hơn nữa
+      minBarSpacing: 0.01,     // Cho phép thu nhỏ hơn nữa
       maxBarSpacing: 30       // Giới hạn zoom lớn
     }
   });
@@ -13,7 +13,9 @@ if (typeof chart !== 'undefined') {
 
 // Các tham số cấu hình cho thuật toán sóng
 window.waveSettings = {
-  ratioAP: 60,    // Tỉ lệ tối đa A/P (%)
-  minValueP: 1,    // Biên độ tối thiểu của sóng P (>= 6)
-  ratioEFOverDE: 70 // ngưỡng EF/DE (%)
+  ratioBCOverAB: 60,  // Ngưỡng so sánh BC/AB (%)
+  ratioDEOverCD: 60,  // Ngưỡng so sánh DE/CD (%)
+  ratioFGOverEF: 60,  // Ngưỡng so sánh FG/EF (%)
+  ratioEFOverDE: 70,  // Ngưỡng so sánh EF/DE (%)
+  ratioCDOverBC: 70   // Ngưỡng so sánh CD/BC (%)
 };

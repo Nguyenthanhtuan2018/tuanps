@@ -257,6 +257,11 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
     }
     alert(msg);
 
+    // >>> Gọi tính toán & hiển thị bảng tỉ lệ sau khi có đủ A..G
+    if (window.upRatioPanel && typeof window.upRatioPanel.run === 'function') {
+      window.upRatioPanel.run();
+    }
+
     isStopPointMode = false;
     chart.unsubscribeClick(onStopPointClick);
   };
