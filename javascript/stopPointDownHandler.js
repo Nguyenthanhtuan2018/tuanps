@@ -261,6 +261,10 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
     if (pointF && pointG) msg += ` | Biên độ FG chọn=${(pointG.high - pointF.low).toFixed(2)}`;
     alert(msg);
 
+    if (window.downRatioPanel && typeof window.downRatioPanel.run === 'function') {
+      window.downRatioPanel.run();
+    }    
+
     isStopPointDownMode = false;
     chart.unsubscribeClick(onClick);
     window.stopPointDownClickHandler = null;
