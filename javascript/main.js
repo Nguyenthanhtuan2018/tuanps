@@ -14,6 +14,8 @@ const chart = LightweightCharts.createChart(document.getElementById('chart'), {
 });
 
 const candleSeries = chart.addCandlestickSeries();
+// Thêm dòng này:
+window.candleSeries = candleSeries;
 
 const candles1s = {}, candles1m = {}, candles5m = {};
 let data1s = [], data1m = [], data5m = [];
