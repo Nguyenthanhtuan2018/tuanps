@@ -96,7 +96,7 @@
   function renderTable(ratios, thresholds, compared, overall) {
     const container = ensureContainer();
     container.innerHTML = "";
-        
+
     const wrap = document.createElement("div");
     wrap.style.maxWidth = "800px";
     wrap.style.fontFamily = "Inter, system-ui, Arial, sans-serif";
@@ -161,6 +161,8 @@
       ["FG/EF", "FGOverEF", "<="],
       ["EF/DE", "EFOverDE", ">="],
       ["CD/BC", "CDOverBC", ">="],
+      ["DE/BC", "DEOverBC", ">="],
+      ["FG/DE", "FGOverDE", ">="],
     ];
   
     function passCell(pass) {
@@ -297,6 +299,8 @@
       FGOverEF: ratioPct(seg.FG, seg.EF),
       EFOverDE: ratioPct(seg.EF, seg.DE),
       CDOverBC: ratioPct(seg.CD, seg.BC),
+      DEOverBC: ratioPct(seg.DE, seg.BC),
+      FGOverDE: ratioPct(seg.FG, seg.DE),
     };
 
     // 3) Làm tròn 2 chữ số
@@ -311,6 +315,8 @@
       FGOverEF: getThreshold("ratioFGOverEF", 50),
       EFOverDE: getThreshold("ratioEFOverDE", 70),
       CDOverBC: getThreshold("ratioCDOverBC", 65),
+      DEOverBC: getThreshold("ratioDEOverBC", 60),
+      FGOverDE: getThreshold("ratioFGOverDE", 60),
     };
 
     // 5) So sánh theo mode
@@ -320,10 +326,16 @@
       FGOverEF: compareRatio(ratios.FGOverEF, thresholds.FGOverEF, "<="),
       EFOverDE: compareRatio(ratios.EFOverDE, thresholds.EFOverDE, ">="),
       CDOverBC: compareRatio(ratios.CDOverBC, thresholds.CDOverBC, ">="),
+      DEOverBC: compareRatio(ratios.DEOverBC, thresholds.DEOverBC, ">="),
+      FGOverDE: compareRatio(ratios.FGOverDE, thresholds.FGOverDE, ">="),
     };
 
     // 6) Lưu kết quả tạm (DOWN)
-    window.ratioResultsDown = { ...compared };
+    window.ratioResultsDown = { 
+      ...compared,
+      DEOverBC: compared.DEOverBC,
+      FGOverDE: compared.FGOverDE,
+    };
 
     // 7) Kết quả cuối cùng (DOWN): tất cả true ⇒ true; có false ⇒ false; null bỏ qua
     const passFlags = Object.values(window.ratioResultsDown)

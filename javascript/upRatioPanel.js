@@ -153,6 +153,8 @@
       ["FG/EF", "FGOverEF", "<="],
       ["EF/DE", "EFOverDE", ">="],
       ["CD/BC", "CDOverBC", ">="],
+      ["DE/BC", "DEOverBC", ">="],
+      ["FG/DE", "FGOverDE", ">="],
     ];
 
     function passCell(pass) {
@@ -283,6 +285,8 @@
       FGOverEF: ratioPct(seg.FG, seg.EF),
       EFOverDE: ratioPct(seg.EF, seg.DE),
       CDOverBC: ratioPct(seg.CD, seg.BC),
+      DEOverBC: ratioPct(seg.DE, seg.BC),
+      FGOverDE: ratioPct(seg.FG, seg.DE),
     };
 
     // 3) Làm tròn 2 chữ số
@@ -292,11 +296,13 @@
 
     // 4) Ngưỡng từ settings (có default dự phòng)
     const thresholds = {
-      BCOverAB: getThreshold("ratioBCOverAB", 70),
-      DEOverCD: getThreshold("ratioDEOverCD", 60),
-      FGOverEF: getThreshold("ratioFGOverEF", 50),
+      BCOverAB: getThreshold("ratioBCOverAB", 60),
+      DEOverCD: getThreshold("ratioDEOverCD", 70),
+      FGOverEF: getThreshold("ratioFGOverEF", 70),
       EFOverDE: getThreshold("ratioEFOverDE", 70),
-      CDOverBC: getThreshold("ratioCDOverBC", 65),
+      CDOverBC: getThreshold("ratioCDOverBC", 70),
+      DEOverBC: getThreshold("ratioDEOverBC", 60),
+      FGOverDE: getThreshold("ratioFGOverDE", 60),
     };
 
     // 5) So sánh theo mode từng tỉ lệ
@@ -306,6 +312,8 @@
       FGOverEF: compareRatio(ratios.FGOverEF, thresholds.FGOverEF, "<="),
       EFOverDE: compareRatio(ratios.EFOverDE, thresholds.EFOverDE, ">="),
       CDOverBC: compareRatio(ratios.CDOverBC, thresholds.CDOverBC, ">="),
+      DEOverBC: compareRatio(ratios.DEOverBC, thresholds.DEOverBC, ">="),
+      FGOverDE: compareRatio(ratios.FGOverDE, thresholds.FGOverDE, ">="),
     };
 
     // 6) Lưu kết quả tạm vào global
@@ -315,6 +323,8 @@
       FGOverEF: compared.FGOverEF,
       EFOverDE: compared.EFOverDE,
       CDOverBC: compared.CDOverBC,
+      DEOverBC: compared.DEOverBC,
+      FGOverDE: compared.FGOverDE,
     };
 
     // 7) Tính "kết quả cuối cùng":
