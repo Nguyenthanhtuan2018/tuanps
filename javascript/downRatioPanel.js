@@ -96,23 +96,23 @@
   function renderTable(ratios, thresholds, compared, overall) {
     const container = ensureContainer();
     container.innerHTML = "";
-
+        
     const wrap = document.createElement("div");
     wrap.style.maxWidth = "800px";
     wrap.style.fontFamily = "Inter, system-ui, Arial, sans-serif";
-
+  
     // Header + overall
     const header = document.createElement("div");
     header.style.display = "flex";
     header.style.justifyContent = "space-between";
     header.style.alignItems = "center";
     header.style.margin = "8px 0 12px 0";
-
+  
     const title = document.createElement("div");
     title.textContent = "Tỉ lệ & So sánh (DOWN)";
     title.style.fontSize = "16px";
     title.style.fontWeight = "600";
-
+  
     const overallBadge = document.createElement("span");
     overallBadge.textContent =
       overall === true
@@ -127,18 +127,18 @@
     overallBadge.style.color = "#fff";
     overallBadge.style.background =
       overall === true ? "#16a34a" : overall === false ? "#dc2626" : "#6b7280";
-
+  
     header.appendChild(title);
     header.appendChild(overallBadge);
-
+  
     const table = document.createElement("table");
     table.style.width = "100%";
     table.style.borderCollapse = "collapse";
     table.style.fontSize = "13px";
-
+  
     const thead = document.createElement("thead");
     const trh = document.createElement("tr");
-    const cols = ["Ratio", "Value (%)", "Threshold", "Pass", "Kết quả cuối cùng"];
+    const cols = ["Ratio", "Value (%)", "Threshold", "Pass"]; // <- bỏ cột cuối
     cols.forEach((c, i) => {
       const th = document.createElement("th");
       th.textContent = c;
@@ -152,9 +152,9 @@
       trh.appendChild(th);
     });
     thead.appendChild(trh);
-
+  
     const tbody = document.createElement("tbody");
-
+  
     const rows = [
       ["BC/AB", "BCOverAB", "<="],
       ["DE/CD", "DEOverCD", "<="],
@@ -162,7 +162,7 @@
       ["EF/DE", "EFOverDE", ">="],
       ["CD/BC", "CDOverBC", ">="],
     ];
-
+  
     function passCell(pass) {
       const span = document.createElement("span");
       if (pass === true) {
@@ -179,54 +179,47 @@
       }
       return span;
     }
-
+  
     rows.forEach(([label, key]) => {
       const tr = document.createElement("tr");
-
+  
       const tdRatio = document.createElement("td");
       tdRatio.textContent = label;
       tdRatio.style.padding = "8px";
       tdRatio.style.borderBottom = "1px solid #f3f4f6";
-
+  
       const tdVal = document.createElement("td");
       tdVal.style.textAlign = "center";
       tdVal.style.padding = "8px";
       tdVal.style.borderBottom = "1px solid #f3f4f6";
-      tdVal.textContent = formatPct(ratios[key]);
-
+      tdVal.textContent = (ratios[key] === null || !Number.isFinite(ratios[key])) ? "–" : `${ratios[key].toFixed(2)}%`;
+  
       const tdThr = document.createElement("td");
       tdThr.style.textAlign = "center";
       tdThr.style.padding = "8px";
       tdThr.style.borderBottom = "1px solid #f3f4f6";
       tdThr.textContent = String(thresholds[key]);
-
+  
       const tdPass = document.createElement("td");
       tdPass.style.textAlign = "center";
       tdPass.style.padding = "8px";
       tdPass.style.borderBottom = "1px solid #f3f4f6";
       tdPass.appendChild(passCell((window.ratioResultsDown?.[key] ?? {}).pass ?? null));
-
-      const tdOverall = document.createElement("td");
-      tdOverall.style.textAlign = "center";
-      tdOverall.style.padding = "8px";
-      tdOverall.style.borderBottom = "1px solid #f3f4f6";
-      tdOverall.appendChild(passCell(overall));
-
+  
       tr.appendChild(tdRatio);
       tr.appendChild(tdVal);
       tr.appendChild(tdThr);
       tr.appendChild(tdPass);
-      tr.appendChild(tdOverall);
       tbody.appendChild(tr);
     });
-
+  
     table.appendChild(thead);
     table.appendChild(tbody);
-
+  
     wrap.appendChild(header);
     wrap.appendChild(table);
     container.appendChild(wrap);
-  }
+  }  
 
   function run() {
     // 1) Tính các đoạn tuyệt đối (thiếu điểm -> null)

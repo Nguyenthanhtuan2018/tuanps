@@ -130,7 +130,7 @@
 
     const thead = document.createElement("thead");
     const trh = document.createElement("tr");
-    const cols = ["Ratio", "Value (%)", "Threshold", "Pass", "Kết quả cuối cùng"];
+    const cols = ["Ratio", "Value (%)", "Threshold", "Pass"]; // <- đã bỏ cột cuối
     cols.forEach((c, i) => {
       const th = document.createElement("th");
       th.textContent = c;
@@ -197,28 +197,21 @@
       tdPass.style.padding = "8px";
       tdPass.style.borderBottom = "1px solid #f3f4f6";
       tdPass.appendChild(passCell((window.ratioResults?.[key] ?? {}).pass ?? null));
-
-      const tdOverall = document.createElement("td");
-      tdOverall.style.textAlign = "center";
-      tdOverall.style.padding = "8px";
-      tdOverall.style.borderBottom = "1px solid #f3f4f6";
-      tdOverall.appendChild(passCell(overall));
-
+  
       tr.appendChild(tdRatio);
       tr.appendChild(tdVal);
       tr.appendChild(tdThr);
       tr.appendChild(tdPass);
-      tr.appendChild(tdOverall);
       tbody.appendChild(tr);
     });
-
+   
     table.appendChild(thead);
     table.appendChild(tbody);
 
     wrap.appendChild(header);
     wrap.appendChild(table);
     container.appendChild(wrap);
-  }
+  }  
 
   function run() {
     // 1) Tính các đoạn tuyệt đối (thiếu điểm -> null)
