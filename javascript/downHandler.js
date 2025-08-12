@@ -9,7 +9,7 @@ document.getElementById('btnDown').addEventListener('click', () => {
     downClickCount = 0;
     window.downSelection = [];
     // document.getElementById('labelABBC').textContent = '';
-    alert("Chế độ DOWN: hãy click 3 lần vào nến để chọn A, B, C");
+    // alert("Chế độ DOWN: hãy click 3 lần vào nến để chọn A, B, C");
 });
 
 chart.subscribeClick(param => {
@@ -62,6 +62,6 @@ chart.subscribeClick(param => {
         //     label.style.color = 'red';
         // }
 
-        alert("Đã chọn đủ A, B, C cho DOWN");
+        // alert("Đã chọn đủ A, B, C cho DOWN");
     }
 });

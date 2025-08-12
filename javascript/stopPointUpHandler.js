@@ -89,7 +89,7 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
   stopPointFMarker = null;
   stopPointGMarker = null;
 
-  alert("Chế độ Stop Point: Vui lòng click 1 nến để chọn điểm Stop Point");
+  // alert("Chế độ Stop Point: Vui lòng click 1 nến để chọn điểm Stop Point");
 
   const onStopPointClick = (param) => {
     if (!isStopPointMode) return;
@@ -255,7 +255,7 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
     if (pointF && pointG) {
       msg += ` | Biên độ FG chọn=${(pointF.high - pointG.low).toFixed(2)}`;
     }
-    alert(msg);
+    // alert(msg);
 
     // >>> Gọi tính toán & hiển thị bảng tỉ lệ sau khi có đủ A..G
     if (window.upRatioPanel && typeof window.upRatioPanel.run === 'function') {

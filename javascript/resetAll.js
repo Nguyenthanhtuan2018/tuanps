@@ -66,6 +66,6 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
     const labelDEEF = document.getElementById('labelDEEF');
     if (labelDEEF) { labelDEEF.textContent = ''; labelDEEF.style.color = ''; }
   
-    alert("Đã reset A..G (UP & DOWN), markers và làm trống 2 bảng 'Tỉ lệ & So sánh' (giữ nguyên 2 div).");
+    // alert("Đã reset A..G (UP & DOWN), markers và làm trống 2 bảng 'Tỉ lệ & So sánh' (giữ nguyên 2 div).");
   });
   

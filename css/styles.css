@@ -1,0 +1,82 @@
+/* css/styles.css */
+
+/* Màu dùng chung */
+:root{
+    --green: #16a34a;
+    --green-hover: #15803d;
+    --red: #dc2626;
+    --red-hover: #b91c1c;
+    --yellow: #facc15;
+    --yellow-hover: #eab308;
+  }
+  
+  /* Layout cơ bản */
+  #chart{
+    width: 100%;
+    height: 600px;
+    position: relative;
+  }
+  #controls{
+    margin: 10px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  /* Base cho tất cả button */
+  #controls button{
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform .04s ease, background-color .12s ease, border-color .12s ease, opacity .12s ease;
+  }
+  #controls button:active{ transform: translateY(1px); }
+  #controls button:disabled{ opacity: .6; cursor: not-allowed; }
+  
+  /* UP + Stop Point UP: xanh lá */
+  #btnUp, #btnStopPointUp{
+    background: var(--green);
+    color: #fff;
+    border-color: #0f7a35;
+  }
+  #btnUp:hover, #btnStopPointUp:hover{
+    background: var(--green-hover);
+    border-color: #0d6a2f;
+  }
+  #btnUp:focus-visible, #btnStopPointUp:focus-visible{
+    outline: 3px solid rgba(22,163,74,.35);
+    outline-offset: 2px;
+  }
+  
+  /* DOWN + Stop Point DOWN: đỏ */
+  #btnDown, #btnStopPointDown{
+    background: var(--red);
+    color: #fff;
+    border-color: #a91414;
+  }
+  #btnDown:hover, #btnStopPointDown:hover{
+    background: var(--red-hover);
+    border-color: #8f1212;
+  }
+  #btnDown:focus-visible, #btnStopPointDown:focus-visible{
+    outline: 3px solid rgba(220,38,38,.35);
+    outline-offset: 2px;
+  }
+  
+  /* Reset All: vàng (chữ đen cho dễ đọc) */
+  #btnResetAll{
+    background: var(--yellow);
+    color: #111827;
+    border-color: #d1a307;
+  }
+  #btnResetAll:hover{
+    background: var(--yellow-hover);
+    border-color: #b98f06;
+  }
+  #btnResetAll:focus-visible{
+    outline: 3px solid rgba(250,204,21,.45);
+    outline-offset: 2px;
+  }
+  

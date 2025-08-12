@@ -62,7 +62,7 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
     return;
   }
   isStopPointDownMode = true;
-  alert("Chế độ Stop Point DOWN: hãy click 1 lần vào nến để chọn điểm stop point.");
+  // alert("Chế độ Stop Point DOWN: hãy click 1 lần vào nến để chọn điểm stop point.");
 
   // Gỡ handler cũ nếu có (tránh chồng)
   if (typeof window.stopPointDownClickHandler === 'function') {
@@ -259,7 +259,7 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
     if (pointG) msg += `, G (High=${pointG.high})`;
     msg += ` | Biên độ DE chọn=${(pointE.high - pointD.low).toFixed(2)}`;
     if (pointF && pointG) msg += ` | Biên độ FG chọn=${(pointG.high - pointF.low).toFixed(2)}`;
-    alert(msg);
+    // alert(msg);
 
     if (window.downRatioPanel && typeof window.downRatioPanel.run === 'function') {
       window.downRatioPanel.run();
