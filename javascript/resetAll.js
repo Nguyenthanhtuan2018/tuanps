@@ -45,17 +45,17 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
     downClickCount = 0;
 
     // Reset label kết quả BC/AB
-    const label = document.getElementById('labelABBC');
-    if (label) {
-        label.textContent = '';
-        label.style.color = '';
-    }
+    // const label = document.getElementById('labelABBC');
+    // if (label) {
+    //     label.textContent = '';
+    //     label.style.color = '';
+    // }
     // Reset label EF/DE
-    const labelDEEF = document.getElementById('labelDEEF');
-    if (labelDEEF) {
-    labelDEEF.textContent = '';
-    labelDEEF.style.color = '';
-    }
+    // const labelDEEF = document.getElementById('labelDEEF');
+    // if (labelDEEF) {
+    // labelDEEF.textContent = '';
+    // labelDEEF.style.color = '';
+    // }
 
     alert("Đã reset A, B, C, D, E, F (UP & DOWN)");
 });

@@ -14,8 +14,8 @@ if (typeof chart !== 'undefined') {
 // Các tham số cấu hình cho thuật toán sóng
 window.waveSettings = {
   ratioBCOverAB: 60,  // Ngưỡng so sánh BC/AB (%)
-  ratioDEOverCD: 60,  // Ngưỡng so sánh DE/CD (%)
-  ratioFGOverEF: 60,  // Ngưỡng so sánh FG/EF (%)
+  ratioDEOverCD: 70,  // Ngưỡng so sánh DE/CD (%)
+  ratioFGOverEF: 70,  // Ngưỡng so sánh FG/EF (%)
   ratioEFOverDE: 70,  // Ngưỡng so sánh EF/DE (%)
   ratioCDOverBC: 70   // Ngưỡng so sánh CD/BC (%)
 };

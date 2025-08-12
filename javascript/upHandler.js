@@ -8,7 +8,7 @@ document.getElementById('btnUp').addEventListener('click', () => {
     isUpMode = true;
     upClickCount = 0;
     window.selectedPointsUP = [];
-    document.getElementById('labelABBC').textContent = ''; // reset label
+    // document.getElementById('labelABBC').textContent = '';
     alert("Chế độ UP: hãy click 3 lần vào nến để chọn A, B, C");
 });
 
@@ -50,14 +50,14 @@ chart.subscribeClick(param => {
         const ratio = AB === 0 ? 0 : (BC / AB) * 100;
         const ratioFixed = ratio.toFixed(2);
 
-        const label = document.getElementById('labelABBC');
-        if (ratio < ratioThreshold) {
-            label.textContent = `BC/AB: ĐẠT (${ratioFixed}%)`;
-            label.style.color = 'green';
-        } else {
-            label.textContent = `BC/AB: KHÔNG ĐẠT (${ratioFixed}%)`;
-            label.style.color = 'red';
-        }
+        // const label = document.getElementById('labelABBC');
+        // if (ratio < ratioThreshold) {
+        //     label.textContent = `BC/AB: ĐẠT (${ratioFixed}%)`;
+        //     label.style.color = 'green';
+        // } else {
+        //     label.textContent = `BC/AB: KHÔNG ĐẠT (${ratioFixed}%)`;
+        //     label.style.color = 'red';
+        // }
 
         alert("Đã chọn đủ A, B, C cho UP");
     }
