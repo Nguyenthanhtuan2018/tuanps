@@ -330,6 +330,12 @@
       FGOverDE: compareRatio(ratios.FGOverDE, thresholds.FGOverDE, ">="),
     };
 
+    // Quy tắc bổ sung: FG/DE > cap thì KHÔNG ĐẠT (override)
+    const fgdeCapDown = getThreshold("ratioFGOverDECap", 80);
+    if (ratios.FGOverDE !== null && Number.isFinite(ratios.FGOverDE) && ratios.FGOverDE > fgdeCapDown) {
+      compared.FGOverDE = { value: ratios.FGOverDE, pass: false };
+    }
+
     // 6) Lưu kết quả tạm (DOWN)
     window.ratioResultsDown = { 
       ...compared,
