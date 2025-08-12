@@ -13,11 +13,11 @@ if (typeof chart !== 'undefined') {
 
 // Các tham số cấu hình cho thuật toán sóng
 window.waveSettings = {
-  ratioBCOverAB: 60,  // Ngưỡng so sánh BC/AB (%)
+  ratioBCOverAB: 70,  // Ngưỡng so sánh BC/AB (%)
   ratioDEOverCD: 70,  // Ngưỡng so sánh DE/CD (%)
   ratioFGOverEF: 70,  // Ngưỡng so sánh FG/EF (%)
   ratioEFOverDE: 70,  // Ngưỡng so sánh EF/DE (%)
   ratioCDOverBC: 70,   // Ngưỡng so sánh CD/BC (%)
-  ratioDEOverBC: 50,  // DE/BC: ĐẠT khi >= 60%
-  ratioFGOverDE: 60,  // FG/DE: ĐẠT khi >= 60%
+  ratioDEOverBC: 45,  // DE/BC: ĐẠT khi >= 60%
+  ratioFGOverDE: 50,  // FG/DE: ĐẠT khi >= 60%
 };
