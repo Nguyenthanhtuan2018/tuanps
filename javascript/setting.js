@@ -21,4 +21,6 @@ window.waveSettings = {
   ratioDEOverBC: 45,  // DE/BC: ĐẠT khi >= 60%
   ratioFGOverDE: 50,  // FG/DE: ĐẠT khi >= 60%
   ratioFGOverDECap: 99,    // NGƯỠNG CHẶN: nếu FG/DE > 80% => KHÔNG ĐẠT (override)
+  ratioEFOverDECap: 200,
+  ratioEFOverDECapDown: 200,
 };

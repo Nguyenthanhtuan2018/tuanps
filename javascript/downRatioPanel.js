@@ -336,6 +336,12 @@
       compared.FGOverDE = { value: ratios.FGOverDE, pass: false };
     }
 
+    // Quy tắc bổ sung mới: EF/DE > cap thì KHÔNG ĐẠT (override)
+    const efdeCapDown = getThreshold("ratioEFOverDECapDown", 200); // default 200
+    if (ratios.EFOverDE !== null && Number.isFinite(ratios.EFOverDE) && ratios.EFOverDE > efdeCapDown) {
+      compared.EFOverDE = { value: ratios.EFOverDE, pass: false };
+    }
+
     // 6) Lưu kết quả tạm (DOWN)
     window.ratioResultsDown = { 
       ...compared,

@@ -3,6 +3,7 @@
 const chart = LightweightCharts.createChart(document.getElementById('chart'), {
   layout: { background: { color: '#ffffff' }, textColor: '#000' },
   grid: { vertLines: { visible: false }, horzLines: { visible: false } },
+  crosshair: { mode: 0 },
   timeScale: {
     timeVisible: true,
     secondsVisible: true,
