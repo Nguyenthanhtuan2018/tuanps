@@ -296,3 +296,53 @@ chart.subscribeCrosshairMove(param => {
 window.addEventListener('DOMContentLoaded', () => {
   loadFromStorage();
 });
+
+(function(){
+  const body = document.body;
+
+  // Modal UP
+  const modalUp = document.getElementById('modalUp');
+  const btnShowUp = document.getElementById('btnShowUpResult');
+  const btnCloseUp = modalUp.querySelector('[data-close-up]');
+
+  // Modal DOWN
+  const modalDown = document.getElementById('modalDown');
+  const btnShowDown = document.getElementById('btnShowDownResult');
+  const btnCloseDown = modalDown.querySelector('[data-close-down]');
+
+  function openModal(modal) {
+    modal.classList.add('is-open');
+    modal.setAttribute('aria-hidden', 'false');
+    body.classList.add('no-scroll');
+  }
+
+  function closeModal(modal) {
+    modal.classList.remove('is-open');
+    modal.setAttribute('aria-hidden', 'true');
+    body.classList.remove('no-scroll');
+  }
+
+  // Mở
+  btnShowUp?.addEventListener('click', () => openModal(modalUp));
+  btnShowDown?.addEventListener('click', () => openModal(modalDown));
+
+  // Đóng qua nút
+  btnCloseUp?.addEventListener('click', () => closeModal(modalUp));
+  btnCloseDown?.addEventListener('click', () => closeModal(modalDown));
+
+  // Đóng khi click ra ngoài dialog
+  [modalUp, modalDown].forEach(modal => {
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal(modal);
+    });
+  });
+
+  // Đóng bằng phím Esc
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (modalUp.classList.contains('is-open')) closeModal(modalUp);
+      if (modalDown.classList.contains('is-open')) closeModal(modalDown);
+    }
+  });
+})();
+

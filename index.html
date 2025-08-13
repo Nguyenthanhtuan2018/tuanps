@@ -37,13 +37,39 @@
     <button id="btnResetAll">Reset All</button>
     <button id="btnUp">UP</button>
     <button id="btnStopPointUp">Stop Point UP</button>
+    <button id="btnShowUpResult" class="result-trigger" type="button">Kết quả UP</button>
     <button id="btnDown">DOWN</button>
     <button id="btnStopPointDown">Stop Point DOWN</button>
-    <!-- <div id="labelABBC" style="margin-top:10px; font-weight:bold;"></div> -->
-    <!-- <div id="labelDEEF" style="margin-top:4px; font-weight:bold;"></div> -->
-    <!-- Vị trí bảng kết quả -->
-    <div id="ratio-table-container" style="padding:8px;"></div>
-    <div id="ratio-table-container-down" style="padding:8px;"></div>
+    <button id="btnShowDownResult" class="result-trigger" type="button">Kết quả DOWN</button>
+
+    <!-- Modal: Kết quả UP -->
+    <div id="modalUp" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal__dialog">
+        <div class="modal__header">
+          <div class="modal__title">Kết quả UP</div>
+          <button class="modal__close" type="button" data-close-up>Đóng</button>
+        </div>
+        <div class="modal__body">
+          <!-- Giữ nguyên ID để code hiện tại tiếp tục render vào đây -->
+          <div id="ratio-table-container" style="padding:0;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal: Kết quả DOWN -->
+    <div id="modalDown" class="modal" aria-hidden="true" role="dialog" aria-modal="true">
+      <div class="modal__dialog">
+        <div class="modal__header">
+          <div class="modal__title">Kết quả DOWN</div>
+          <button class="modal__close" type="button" data-close-down>Đóng</button>
+        </div>
+        <div class="modal__body">
+          <!-- Giữ nguyên ID để code hiện tại tiếp tục render vào đây -->
+          <div id="ratio-table-container-down" style="padding:0;"></div>
+        </div>
+      </div>
+    </div>
+
   </div>
   <div id="chart"></div>
 
