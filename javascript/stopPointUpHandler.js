@@ -92,6 +92,11 @@ document.getElementById('btnStopPointUp').addEventListener('click', () => {
   // alert("Chế độ Stop Point: Vui lòng click 1 nến để chọn điểm Stop Point");
 
   const onStopPointClick = (param) => {
+
+    // ==== NEW: chặn khi crosshair chưa hiển thị ====
+    if (!isCrosshairActive()) return;
+    // ==== END NEW ====
+
     if (!isStopPointMode) return;
     if (!param?.time || !param?.seriesData) return;
 

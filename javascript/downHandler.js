@@ -13,6 +13,11 @@ document.getElementById('btnDown').addEventListener('click', () => {
 });
 
 chart.subscribeClick(param => {
+
+    // ==== NEW: chặn khi crosshair chưa hiển thị ====
+    if (!isCrosshairActive()) return;
+    // ==== END NEW ====
+
     if (!isSelectingDown || !param.time || !param.seriesData) return;
     const priceData = param.seriesData.get(candleSeries);
     if (!priceData) return;

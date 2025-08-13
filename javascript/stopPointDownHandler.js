@@ -71,6 +71,11 @@ document.getElementById('btnStopPointDown').addEventListener('click', () => {
   }
 
   const onClick = (param) => {
+
+    // ==== NEW: chặn khi crosshair chưa hiển thị ====
+    if (!isCrosshairActive()) return;
+    // ==== END NEW ====
+
     if (!isStopPointDownMode) return;
     if (!param?.time || !param?.seriesData) return;
 

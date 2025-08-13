@@ -113,6 +113,23 @@ function processTick(tick) {
   if (typeof drawDetectedWaves === 'function') drawDetectedWaves();
 }
 
+  // ==== NEW: chỉ cho phép click khi crosshair đang hiển thị ====
+  let crosshairFreshUntil = 0; // timestamp (performance.now()) tới khi coi là "đang hiển thị"
+
+  chart.subscribeCrosshairMove((param) => {
+    // Khi crosshair đang nằm trên vùng có dữ liệu, LightweightCharts trả về param.time
+    if (param && param.time) {
+      // Cho phép click trong 1000ms kể từ lần cập nhật crosshair gần nhất
+      crosshairFreshUntil = performance.now() + 1000;
+    }
+  });
+
+  // Helper: crosshair còn "fresh" không?
+  function isCrosshairActive() {
+    return performance.now() <= crosshairFreshUntil;
+  }
+  // ==== END NEW ====
+
 document.getElementById('timeframe').addEventListener('change', (e) => {
   currentFrame = e.target.value;
   updateDisplayedChart();
