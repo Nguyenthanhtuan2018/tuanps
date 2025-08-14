@@ -19,8 +19,8 @@ window.waveSettings = {
   ratioEFOverDE: 70,  // Ngưỡng so sánh EF/DE (%) >= ratioEFOverDE => ĐẠT
   ratioCDOverBC: 120,  // Ngưỡng so sánh CD/BC (%) >= ratioCDOverBC => ĐẠT
   ratioDEOverBC: 60,  // Ngưỡng so sánh DE/BC (%) >= ratioDEOverBC => ĐẠT
-  ratioFGOverDE: 85,  // Ngưỡng so sánh FG/DE (%) >= ratioFGOverDE => ĐẠT
+  ratioFGOverDE: 60,  // Ngưỡng so sánh FG/DE (%) >= ratioFGOverDE => ĐẠT
   ratioFGOverDECap: 99,  // Ngưỡng so sánh FG/DE (%) > ratioFGOverDECap => KHÔNG ĐẠT
-  ratioEFOverDECap: 205,  // Ngưỡng so sánh EF/DE (%) > ratioEFOverDECap => KHÔNG ĐẠT
+  ratioEFOverDECap: 270,  // Ngưỡng so sánh EF/DE (%) > ratioEFOverDECap => KHÔNG ĐẠT
   ratioEFOverDECapDown: 200,  // Ngưỡng so sánh EF/DE (%) > ratioEFOverDECapDown => KHÔNG ĐẠT
 };
