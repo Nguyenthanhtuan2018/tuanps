@@ -178,6 +178,12 @@ document.getElementById('exportBtn').addEventListener('click', async () => {
   }
 });
 
+// Thêm refresh
+function uniqByTime(arr) {
+  // ưu tiên phần tử xuất hiện sau (dữ liệu mới sẽ đè cũ)
+  return Object.values(Object.fromEntries(arr.map(c => [c.time, c])));
+}
+
 document.getElementById('importBtn').addEventListener('click', () => {
   document.getElementById('importFile').click();
 });
@@ -345,4 +351,62 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 })();
+
+// Thêm refresh
+  async function refreshChartFromAPI() {
+    const btn = document.getElementById('refreshBtn');
+    try {
+      if (btn) { btn.disabled = true; btn.textContent = 'Đang refresh...'; }
+
+      const res = await fetch("https://spwapidatafeed.vps.com.vn/getpschartintraday/VN30F1M");
+      const ticks = await res.json();
+
+      // build tạm giống export
+      const tmp1s = {}, tmp1m = {}, tmp5m = {};
+      const d1s = [], d1m = [], d5m = [];
+
+      for (const tick of ticks) {
+        if (!tick.timeServer || typeof tick.timeServer !== "string") continue;
+        const tUnix = convertTimeServerToUnix(tick.timeServer);
+        const t1s = tUnix;
+        const t1m = Math.floor(tUnix / 60) * 60;
+        const t5m = Math.floor(tUnix / 300) * 300;
+
+        updateCandle(tmp1s, d1s, tick, t1s);
+        updateCandle(tmp1m, d1m, tick, t1m);
+        updateCandle(tmp5m, d5m, tick, t5m);
+      }
+
+      // merge vào dữ liệu hiện có
+      let merged1s = uniqByTime([...data1s, ...d1s]).sort((a, b) => a.time - b.time);
+      let merged1m = uniqByTime([...data1m, ...d1m]).sort((a, b) => a.time - b.time);
+      let merged5m = uniqByTime([...data5m, ...d5m]).sort((a, b) => a.time - b.time);
+
+      // cập nhật mảng chính & map tra cứu
+      data1s = merged1s;
+      data1m = merged1m;
+      data5m = merged5m;
+
+      Object.assign(candles1s, Object.fromEntries(data1s.map(c => [c.time, c])));
+      Object.assign(candles1m, Object.fromEntries(data1m.map(c => [c.time, c])));
+      Object.assign(candles5m, Object.fromEntries(data5m.map(c => [c.time, c])));
+
+      // lưu & vẽ lại
+      saveToStorage();
+      updateDisplayedChart();
+      if (typeof drawDetectedWaves === 'function') drawDetectedWaves();
+
+      // thông báo nhẹ
+      console.log('Refresh chart: merged candles OK');
+    } catch (e) {
+      alert("Refresh thất bại! Không lấy được dữ liệu từ API.");
+      console.error(e);
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Refresh'; }
+    }
+  }
+
+  document.getElementById('refreshBtn')?.addEventListener('click', () => {
+    refreshChartFromAPI();
+  });  
 
