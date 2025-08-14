@@ -364,6 +364,23 @@
     }
     window.overallResultDown = overall;
 
+    // === Đọc bằng loa khi tất cả ĐẠT (DOWN) và chưa đọc trước đó ===
+    // if (overall === true) {
+    //   if (!window._lastSpokenDown) {
+    //     window.speakText("Tất cả tiêu chí DOWN đã đạt");
+    //     window._lastSpokenDown = true;
+    //   }
+    // } else {
+    //   // nếu không đạt nữa thì cho phép đọc lại lần sau khi đạt
+    //   window._lastSpokenDown = false;
+    // }
+
+    if (overall === true) {
+      window.speakText("DOWN: Tất cả tiêu chí đã đạt");
+    } else if (overall === false) {
+      window.speakText("DOWN: Không đạt tiêu chí");
+    }
+
     // 8) Render
     renderTable(ratios, thresholds, compared, overall);
   }

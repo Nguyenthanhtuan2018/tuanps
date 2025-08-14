@@ -357,6 +357,22 @@
     }
     window.overallResult = overall;
 
+    // === Đọc bằng loa khi tất cả ĐẠT và chưa đọc trước đó ===
+    // if (overall === true) {
+    //   if (!window._lastSpokenUp) {
+    //     speakText("Tất cả tiêu chí UP đã đạt");
+    //     window._lastSpokenUp = true;
+    //   }
+    // } else {
+    //   window._lastSpokenUp = false;
+    // }
+
+    if (overall === true) {
+      window.speakText("UP: Tất cả tiêu chí đã đạt");
+    } else if (overall === false) {
+      window.speakText("UP: Không đạt tiêu chí");
+    }
+
     // 8) Render bảng UI
     renderTable(ratios, thresholds, compared, overall);
   }

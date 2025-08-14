@@ -419,3 +419,20 @@ window.addEventListener('DOMContentLoaded', () => {
     refreshChartFromAPI();
   });  
 
+  function speakText(text) {
+    if (!('speechSynthesis' in window)) {
+        console.warn("Trình duyệt không hỗ trợ SpeechSynthesis");
+        return;
+    }
+
+     // Huỷ câu đang đọc để tránh chồng âm
+     try { window.speechSynthesis.cancel(); } catch (e) {}
+     
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'vi-VN'; // tiếng Việt
+    utterance.rate = 1; // tốc độ (0.1 -> 10)
+    utterance.pitch = 1; // cao độ
+    window.speechSynthesis.speak(utterance);
+}
+
+
