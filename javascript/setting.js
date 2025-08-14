@@ -13,14 +13,14 @@ if (typeof chart !== 'undefined') {
 
 // Các tham số cấu hình cho thuật toán sóng
 window.waveSettings = {
-  ratioBCOverAB: 70,  // Ngưỡng so sánh BC/AB (%)
-  ratioDEOverCD: 70,  // Ngưỡng so sánh DE/CD (%)
-  ratioFGOverEF: 75,  // Ngưỡng so sánh FG/EF (%)
-  ratioEFOverDE: 70,  // Ngưỡng so sánh EF/DE (%)
-  ratioCDOverBC: 70,   // Ngưỡng so sánh CD/BC (%)
-  ratioDEOverBC: 45,  // DE/BC: ĐẠT khi >= 60%
-  ratioFGOverDE: 50,  // FG/DE: ĐẠT khi >= 60%
-  ratioFGOverDECap: 99,    // NGƯỠNG CHẶN: nếu FG/DE > 80% => KHÔNG ĐẠT (override)
-  ratioEFOverDECap: 200,
-  ratioEFOverDECapDown: 200,
+  ratioBCOverAB: 70,  // Ngưỡng so sánh BC/AB (%) <= ratioBCOverAB => ĐẠT
+  ratioDEOverCD: 70,  // Ngưỡng so sánh DE/CD (%) <= ratioDEOverCD => ĐẠT
+  ratioFGOverEF: 75,  // Ngưỡng so sánh FG/EF (%) <= ratioFGOverEF => ĐẠT
+  ratioEFOverDE: 70,  // Ngưỡng so sánh EF/DE (%) >= ratioEFOverDE => ĐẠT
+  ratioCDOverBC: 120,  // Ngưỡng so sánh CD/BC (%) >= ratioCDOverBC => ĐẠT
+  ratioDEOverBC: 60,  // Ngưỡng so sánh DE/BC (%) >= ratioDEOverBC => ĐẠT
+  ratioFGOverDE: 85,  // Ngưỡng so sánh FG/DE (%) >= ratioFGOverDE => ĐẠT
+  ratioFGOverDECap: 99,  // Ngưỡng so sánh FG/DE (%) > ratioFGOverDECap => KHÔNG ĐẠT
+  ratioEFOverDECap: 205,  // Ngưỡng so sánh EF/DE (%) > ratioEFOverDECap => KHÔNG ĐẠT
+  ratioEFOverDECapDown: 200,  // Ngưỡng so sánh EF/DE (%) > ratioEFOverDECapDown => KHÔNG ĐẠT
 };
