@@ -67,5 +67,42 @@ document.getElementById('btnResetAll').addEventListener('click', () => {
     if (labelDEEF) { labelDEEF.textContent = ''; labelDEEF.style.color = ''; }
   
     // alert("Đã reset A..G (UP & DOWN), markers và làm trống 2 bảng 'Tỉ lệ & So sánh' (giữ nguyên 2 div).");
+
+    // 9) Dừng Auto và đưa UI 2 nút về mặc định
+    try {
+      if (typeof stopStopPointUpAuto === 'function') {
+        stopStopPointUpAuto();               // dừng interval 5s
+        console.log('[AutoUP] Dừng Auto bởi Reset All');
+      }
+      // Cập nhật UI nút qua event đã wire trong stopPointUpHandler.js
+      window.dispatchEvent(new Event('stop-auto-up'));
+
+      // (tuỳ chọn) set trực tiếp để chắc chắn UI đúng
+      const startBtn = document.getElementById('btnStartAutoUp');
+      const stopBtn  = document.getElementById('btnStopAutoUp');
+      if (startBtn && stopBtn) {
+        startBtn.disabled = false;
+        startBtn.textContent = 'Start Auto UP';
+        stopBtn.disabled = true;
+      }
+    } catch (_) {}
+
+        // Dừng Auto DOWN và reset UI
+    try {
+      if (typeof stopStopPointDownAuto === 'function') {
+        stopStopPointDownAuto();
+        console.log('[AutoDOWN] Dừng Auto bởi Reset All');
+      }
+      window.dispatchEvent(new Event('stop-auto-down'));
+      const startBtnD = document.getElementById('btnStartAutoDown');
+      const stopBtnD  = document.getElementById('btnStopAutoDown');
+      if (startBtnD && stopBtnD) {
+        startBtnD.disabled = false;
+        startBtnD.textContent = 'Start Auto DOWN';
+        stopBtnD.disabled = true;
+      }
+    } catch (_) {}
+
+
   });
   

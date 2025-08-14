@@ -8,6 +8,11 @@ document.getElementById('btnUp').addEventListener('click', () => {
     isUpMode = true;
     upClickCount = 0;
     window.selectedPointsUP = [];
+
+    // Dừng Auto khi chọn lại A/B/C
+    if (typeof stopStopPointUpAuto === 'function') stopStopPointUpAuto();
+    window.dispatchEvent(new Event('stop-auto-up'));
+    
     // document.getElementById('labelABBC').textContent = '';
     // alert("Chế độ UP: hãy click 3 lần vào nến để chọn A, B, C");
 });

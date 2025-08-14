@@ -8,6 +8,9 @@ document.getElementById('btnDown').addEventListener('click', () => {
     isSelectingDown = true;
     downClickCount = 0;
     window.downSelection = [];
+    // Dừng Auto DOWN khi chọn lại A/B/C
+    if (typeof stopStopPointDownAuto === 'function') stopStopPointDownAuto();
+    window.dispatchEvent(new Event('stop-auto-down'));
     // document.getElementById('labelABBC').textContent = '';
     // alert("Chế độ DOWN: hãy click 3 lần vào nến để chọn A, B, C");
 });

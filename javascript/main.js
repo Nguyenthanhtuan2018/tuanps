@@ -134,6 +134,15 @@ document.getElementById('timeframe').addEventListener('change', (e) => {
   currentFrame = e.target.value;
   updateDisplayedChart();
   if (typeof drawDetectedWaves === 'function') drawDetectedWaves();
+
+  // NEW: dừng Auto khi đổi khung
+  if (typeof stopStopPointUpAuto === 'function') stopStopPointUpAuto();
+  window.dispatchEvent(new Event('stop-auto-up')); // cập nhật UI nút
+
+  // NEW for DOWN
+  if (typeof stopStopPointDownAuto === 'function') stopStopPointDownAuto();
+  window.dispatchEvent(new Event('stop-auto-down'));
+
 });
 
 document.getElementById('exportBtn').addEventListener('click', async () => {
