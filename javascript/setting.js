@@ -17,7 +17,7 @@ window.waveSettings = {
   ratioDEOverCD: 70,  // DE/CD (%) <= ratioDEOverCD => ĐẠT
   ratioFGOverEF: 75,  // FG/EF (%) <= ratioFGOverEF => ĐẠT
   ratioEFOverDE: 70,  // EF/DE (%) >= ratioEFOverDE => ĐẠT
-  ratioCDOverBC: 110, // CD/BC (%) >= ratioCDOverBC => ĐẠT
+  ratioCDOverBC: 120, // CD/BC (%) >= ratioCDOverBC => ĐẠT
   ratioDEOverBC: 35,  // DE/BC (%) >= ratioDEOverBC => ĐẠT 
   ratioFGOverDE: 50,  // FG/DE (%) >= ratioFGOverDE => ĐẠT
   ratioFGOverDECap: 99,  // FG/DE (%) > ratioFGOverDECap => KHÔNG ĐẠT
