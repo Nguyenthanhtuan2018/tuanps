@@ -18,7 +18,7 @@ window.waveSettings = {
   ratioFGOverEF: 75,  // Ngưỡng so sánh FG/EF (%) <= ratioFGOverEF => ĐẠT
   ratioEFOverDE: 70,  // Ngưỡng so sánh EF/DE (%) >= ratioEFOverDE => ĐẠT
   ratioCDOverBC: 110,  // Ngưỡng so sánh CD/BC (%) >= ratioCDOverBC => ĐẠT
-  ratioDEOverBC: 55,  // Ngưỡng so sánh DE/BC (%) >= ratioDEOverBC => ĐẠT 
+  ratioDEOverBC: 38,  // Ngưỡng so sánh DE/BC (%) >= ratioDEOverBC => ĐẠT 
   ratioFGOverDE: 55,  // Ngưỡng so sánh FG/DE (%) >= ratioFGOverDE => ĐẠT
   ratioFGOverDECap: 99,  // Ngưỡng so sánh FG/DE (%) > ratioFGOverDECap => KHÔNG ĐẠT
   ratioEFOverDECap: 270,  // Ngưỡng so sánh EF/DE (%) > ratioEFOverDECap => KHÔNG ĐẠT
