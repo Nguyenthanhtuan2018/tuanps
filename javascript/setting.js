@@ -17,13 +17,13 @@ if (typeof chart !== 'undefined') {
 // Bạn có thể chỉnh số cho hợp dữ liệu thực tế
 window.waveProfiles = {
   tiep_dien: { // thuật toán sóng tiếp diễn tăng/giảm dần
-    ratioBCOverAB: { min: 0,   max: 70 },
-    ratioDEOverCD: { min: 0,   max: 70 },
-    ratioFGOverEF: { min: 0,   max: 75 },
-    ratioEFOverDE: { min: 70,  max: 200 },
-    ratioCDOverBC: { min: 120, max: 200 }, // bạn vừa nâng min=120
-    ratioDEOverBC: { min: 35,  max: 99 },
-    ratioFGOverDE: { min: 50,  max: 99 },
+    ratioBCOverAB: { min: 37.11,   max: 70.00 },
+    ratioDEOverCD: { min: 25.00,   max: 85.92 },
+    ratioFGOverEF: { min: 35.48,   max: 80.39 },
+    ratioEFOverDE: { min: 70.00,   max: 263.83 },
+    ratioCDOverBC: { min: 119,   max: 170 },
+    ratioDEOverBC: { min: 38.30,   max: 70 },
+    ratioFGOverDE: { min: 32.00,   max: 95.56 },
   },
 
   kathy: { // thuật toán sóng kathy (ví dụ chặt hơn ở hồi/thu hẹp)
