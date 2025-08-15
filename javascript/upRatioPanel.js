@@ -328,6 +328,13 @@
       compared.EFOverDE = { value: ratios.EFOverDE, pass: false };
     }
 
+    // Caps (giới hạn trên) cho UP
+    const cdBcCapUp = getThreshold("ratioCDOverBCUpCap", Infinity);
+    // Chặn trần CD/BC cho UP: nếu vượt cap => KHÔNG ĐẠT
+    if (ratios.CDOverBC !== null && Number.isFinite(ratios.CDOverBC) && ratios.CDOverBC > cdBcCapUp) {
+      compared.CDOverBC = { value: ratios.CDOverBC, pass: false };
+    }
+
     // 6) Lưu kết quả tạm vào global
     window.ratioResults = {
       BCOverAB: compared.BCOverAB,

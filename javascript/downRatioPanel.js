@@ -342,6 +342,13 @@
       compared.EFOverDE = { value: ratios.EFOverDE, pass: false };
     }
 
+    // Caps (giới hạn trên) cho DOWN
+    const cdBcCapDown = getThreshold("ratioCDOverBCDownCap", Infinity);
+    // Chặn trần CD/BC cho DOWN: nếu vượt cap => KHÔNG ĐẠT
+    if (ratios.CDOverBC !== null && Number.isFinite(ratios.CDOverBC) && ratios.CDOverBC > cdBcCapDown) {
+      compared.CDOverBC = { value: ratios.CDOverBC, pass: false };
+    }
+
     // 6) Lưu kết quả tạm (DOWN)
     window.ratioResultsDown = { 
       ...compared,
