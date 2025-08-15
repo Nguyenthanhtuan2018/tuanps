@@ -1,27 +1,19 @@
-// javascript/downRatioPanel.js
-// Panel tính & hiển thị tỉ lệ (DOWN) sau khi đã có A..G và waveSettings.
-// Quy tắc so sánh:
-// - BC/AB, DE/CD, FG/EF: <= threshold => ĐẠT
-// - EF/DE, CD/BC:       >= threshold => ĐẠT
-// - Chỉ tính khi hai đoạn có giá trị và mẫu > 0
-// - Đoạn giá = |Giá(Y) - Giá(X)| với B,D,F dùng low; A,C,E,G dùng high
-// - Lưu vào window.ratioResultsDown và window.overallResultDown
+// javascript/downRatioPanel.js (MIN–MAX + Presets, đồng bộ với UP)
+// Panel tính & hiển thị tỉ lệ (DOWN) sau khi đã có A..G.
+// - Ưu tiên preset từ window.waveProfiles + window.waveActiveProfile.
+// - Fallback sang window.waveSettings.{ratioKey: {min,max}} nếu không có preset.
+// - KHÔNG còn override/cap rời rạc; tất cả theo min–max.
+//
+// Quy tắc & dữ liệu:
+// - Chỉ tính tỉ lệ khi cả hai đoạn có giá trị & mẫu > 0
+// - Chiều DOWN: A,C,E,G dùng HIGH; B,D,F dùng LOW
+// - Lưu kết quả vào window.ratioResultsDown và window.overallResultDown
 
 (function () {
-  // ----- Helpers -----
-  const round = (num, digits = 2) =>
-    Number.isFinite(num) ? Number(num.toFixed(digits)) : num;
+  // ===== Helpers =====
+  const round = (num, digits = 2) => Number.isFinite(num) ? Number(num.toFixed(digits)) : num;
 
-  const formatPct = (v) =>
-    (v === null || !Number.isFinite(v)) ? "–" : `${v.toFixed(2)}%`;
-
-  function getThreshold(key, fallback) {
-    const ws = window.waveSettings || {};
-    const v = ws[key];
-    return typeof v === "number" && Number.isFinite(v) ? v : fallback;
-  }
-
-  // Lấy điểm theo nhãn, KHỚP đúng tên biến DOWN của bạn
+  // Lấy điểm theo nhãn (đúng với biến DOWN của bạn)
   function getPoint(label) {
     const A = window.downSelection?.[0] ?? null;
     const B = window.downSelection?.[1] ?? null;
@@ -44,7 +36,7 @@
     }
   }
 
-  // Chiều DOWN: A,C,E,G = high; B,D,F = low
+  // Chiều DOWN: A,C,E,G = HIGH; B,D,F = LOW
   function pointPrice(label, p) {
     if (!p) return null;
     const highs = new Set(["A", "C", "E", "G"]);
@@ -54,34 +46,63 @@
     return null;
   }
 
-  // Biên độ đoạn tuyệt đối |Y - X|; đủ 2 điểm & giá hợp lệ mới tính
+  // Biên độ đoạn tuyệt đối |Y - X|
   function segmentAbs(X, Y) {
     const pX = getPoint(X);
     const pY = getPoint(Y);
-    if (!pX || !pY) return null;
+    if (!pX || !pY) return null; // thiếu điểm
     const vX = pointPrice(X, pX);
     const vY = pointPrice(Y, pY);
     if (!Number.isFinite(vX) || !Number.isFinite(vY)) return null;
     return Math.abs(vY - vX);
   }
 
-  // Tỉ lệ %: chỉ khi hai đoạn có và mẫu > 0
+  // Tỉ lệ %: chỉ khi có và mẫu > 0
   function ratioPct(num, den) {
     if (num === null || den === null) return null;
     if (den <= 0) return null;
     return (num / den) * 100;
   }
 
-  // So sánh với ngưỡng theo mode ('<=' hoặc '>=')
-  function compareRatio(valuePct, threshold, mode = '>=') {
-    if (valuePct === null) return { value: null, pass: null };
-    if (!Number.isFinite(valuePct)) return { value: null, pass: null };
-    return (mode === '<=')
-      ? { value: valuePct, pass: valuePct <= threshold }
-      : { value: valuePct, pass: valuePct >= threshold };
+  // ===== Preset & Min–Max =====
+  // Lấy cấu hình {min,max} cho 1 key ratio (ví dụ "ratioCDOverBC")
+  function getRangeCfg(nameKey) {
+    // 1) Ưu tiên profile: waveProfiles + waveActiveProfile
+    const active = window.waveActiveProfile || "tiep_dien";
+    if (window.waveProfiles && window.waveProfiles[active]) {
+      const cfg = window.waveProfiles[active][nameKey] || {};
+      const min = (typeof cfg.min === "number" && Number.isFinite(cfg.min)) ? cfg.min : -Infinity;
+      const max = (typeof cfg.max === "number" && Number.isFinite(cfg.max)) ? cfg.max : Infinity;
+      return { min, max, source: "profile", active };
+    }
+    // 2) Fallback sang waveSettings.{nameKey:{min,max}}
+    const ws = window.waveSettings || {};
+    const cfg = ws[nameKey] || {};
+    const min = (typeof cfg.min === "number" && Number.isFinite(cfg.min)) ? cfg.min : -Infinity;
+    const max = (typeof cfg.max === "number" && Number.isFinite(cfg.max)) ? cfg.max : Infinity;
+    return { min, max, source: "settings", active };
   }
 
-  // Tạo container nếu chưa có
+  // So sánh theo min–max (kèm reason để debug nhanh)
+  function checkMinMax(nameKey, valuePct) {
+    if (valuePct === null || !Number.isFinite(valuePct)) {
+      return { value: null, pass: null, reason: "–" };
+    }
+    const { min, max } = getRangeCfg(nameKey);
+    if (valuePct < min) return { value: valuePct, pass: false, reason: `value < min(${min})` };
+    if (valuePct > max) return { value: valuePct, pass: false, reason: `value > max(${max})` };
+    return { value: valuePct, pass: true, reason: "OK" };
+  }
+
+  // Hiển thị min–max gọn cho UI
+  function formatRange(nameKey) {
+    const { min, max } = getRangeCfg(nameKey);
+    const minTxt = Number.isFinite(min) && min !== -Infinity ? `≥${min}` : "";
+    const maxTxt = Number.isFinite(max) && max !==  Infinity ? `≤${max}` : "";
+    return (minTxt && maxTxt) ? `${minTxt} & ${maxTxt}` : (minTxt || maxTxt || "–");
+  }
+
+  // ===== UI Table =====
   function ensureContainer() {
     let container = document.getElementById("ratio-table-container-down");
     if (!container) {
@@ -93,26 +114,40 @@
     return container;
   }
 
-  function renderTable(ratios, thresholds, compared, overall) {
+  function renderTable(ratios, compared, overall) {
     const container = ensureContainer();
     container.innerHTML = "";
 
     const wrap = document.createElement("div");
     wrap.style.maxWidth = "800px";
     wrap.style.fontFamily = "Inter, system-ui, Arial, sans-serif";
-  
+
     // Header + overall
     const header = document.createElement("div");
     header.style.display = "flex";
     header.style.justifyContent = "space-between";
     header.style.alignItems = "center";
     header.style.margin = "8px 0 12px 0";
-  
+
     const title = document.createElement("div");
-    title.textContent = "Tỉ lệ & So sánh (DOWN)";
-    title.style.fontSize = "16px";
-    title.style.fontWeight = "600";
-  
+    title.style.display = "flex";
+    title.style.alignItems = "center";
+    title.style.gap = "12px";
+
+    const titleText = document.createElement("span");
+    titleText.textContent = "Tỉ lệ & So sánh (DOWN)";
+    titleText.style.fontSize = "16px";
+    titleText.style.fontWeight = "600";
+
+    const profileHint = document.createElement("span");
+    const active = window.waveActiveProfile || "tiep_dien";
+    profileHint.textContent = `Preset: ${active}`;
+    profileHint.style.fontSize = "12px";
+    profileHint.style.color = "#6b7280";
+
+    title.appendChild(titleText);
+    title.appendChild(profileHint);
+
     const overallBadge = document.createElement("span");
     overallBadge.textContent =
       overall === true
@@ -127,18 +162,18 @@
     overallBadge.style.color = "#fff";
     overallBadge.style.background =
       overall === true ? "#16a34a" : overall === false ? "#dc2626" : "#6b7280";
-  
+
     header.appendChild(title);
     header.appendChild(overallBadge);
-  
+
     const table = document.createElement("table");
     table.style.width = "100%";
     table.style.borderCollapse = "collapse";
     table.style.fontSize = "13px";
-  
+
     const thead = document.createElement("thead");
     const trh = document.createElement("tr");
-    const cols = ["Ratio", "Value (%)", "Threshold", "Pass"]; // <- bỏ cột cuối
+    const cols = ["Ratio", "Value (%)", "Min–Max", "Pass"];
     cols.forEach((c, i) => {
       const th = document.createElement("th");
       th.textContent = c;
@@ -152,19 +187,20 @@
       trh.appendChild(th);
     });
     thead.appendChild(trh);
-  
+
     const tbody = document.createElement("tbody");
-  
+
+    // [Nhãn hiển thị, ratioKey nội bộ, nameKey trong settings/preset]
     const rows = [
-      ["BC/AB", "BCOverAB", "<="],
-      ["DE/CD", "DEOverCD", "<="],
-      ["FG/EF", "FGOverEF", "<="],
-      ["EF/DE", "EFOverDE", ">="],
-      ["CD/BC", "CDOverBC", ">="],
-      ["DE/BC", "DEOverBC", ">="],
-      ["FG/DE", "FGOverDE", ">="],
+      ["BC/AB", "BCOverAB", "ratioBCOverAB"],
+      ["DE/CD", "DEOverCD", "ratioDEOverCD"],
+      ["FG/EF", "FGOverEF", "ratioFGOverEF"],
+      ["EF/DE", "EFOverDE", "ratioEFOverDE"],
+      ["CD/BC", "CDOverBC", "ratioCDOverBC"],
+      ["DE/BC", "DEOverBC", "ratioDEOverBC"],
+      ["FG/DE", "FGOverDE", "ratioFGOverDE"],
     ];
-  
+
     function passCell(pass) {
       const span = document.createElement("span");
       if (pass === true) {
@@ -181,53 +217,56 @@
       }
       return span;
     }
-  
-    rows.forEach(([label, key]) => {
+
+    rows.forEach(([label, ratioKey, nameKey]) => {
       const tr = document.createElement("tr");
-  
+
       const tdRatio = document.createElement("td");
       tdRatio.textContent = label;
       tdRatio.style.padding = "8px";
       tdRatio.style.borderBottom = "1px solid #f3f4f6";
-  
+
       const tdVal = document.createElement("td");
       tdVal.style.textAlign = "center";
       tdVal.style.padding = "8px";
       tdVal.style.borderBottom = "1px solid #f3f4f6";
-      tdVal.textContent = (ratios[key] === null || !Number.isFinite(ratios[key])) ? "–" : `${ratios[key].toFixed(2)}%`;
-  
-      const tdThr = document.createElement("td");
-      tdThr.style.textAlign = "center";
-      tdThr.style.padding = "8px";
-      tdThr.style.borderBottom = "1px solid #f3f4f6";
-      tdThr.textContent = String(thresholds[key]);
-  
+      const v = ratios[ratioKey];
+      tdVal.textContent = (v === null || !Number.isFinite(v)) ? "–" : `${round(v, 2)}%`;
+
+      const tdRange = document.createElement("td");
+      tdRange.style.textAlign = "center";
+      tdRange.style.padding = "8px";
+      tdRange.style.borderBottom = "1px solid #f3f4f6";
+      tdRange.textContent = formatRange(nameKey);
+
       const tdPass = document.createElement("td");
       tdPass.style.textAlign = "center";
       tdPass.style.padding = "8px";
       tdPass.style.borderBottom = "1px solid #f3f4f6";
-      tdPass.appendChild(passCell((window.ratioResultsDown?.[key] ?? {}).pass ?? null));
-  
+      tdPass.appendChild(passCell((window.ratioResultsDown?.[ratioKey] ?? {}).pass ?? null));
+      // Tooltip lý do (nếu muốn debug nhanh):
+      tdPass.title = (window.ratioResultsDown?.[ratioKey]?.reason) || "";
+
       tr.appendChild(tdRatio);
       tr.appendChild(tdVal);
-      tr.appendChild(tdThr);
+      tr.appendChild(tdRange);
       tr.appendChild(tdPass);
       tbody.appendChild(tr);
     });
-  
+
     table.appendChild(thead);
     table.appendChild(tbody);
-  
+
     wrap.appendChild(header);
     wrap.appendChild(table);
     container.appendChild(wrap);
-  }  
+  }
 
   function run() {
     // 1) Tính các đoạn tuyệt đối (thiếu điểm -> null)
     const seg = {
       AB: segmentAbs("A", "B"),
-      BC: segmentAbs("C", "B"), // BC = |B.low - C.high|
+      BC: segmentAbs("C", "B"), // BC = |B.low - C.high| theo chiều DOWN
       CD: segmentAbs("C", "D"),
       DE: segmentAbs("E", "D"),
       EF: segmentAbs("E", "F"),
@@ -238,7 +277,7 @@
     try {
       // Map đoạn/điểm -> [điểm hiển thị, màu, vị trí]
       const segmentDisplayMap = {
-        A:  ["A", "#0ea5e9", "aboveBar"],   // hiển thị High của A (DOWN)
+        A:  ["A", "#0ea5e9", "aboveBar"],   // High của A (DOWN)
         AB: ["B", "#2563eb", "belowBar"],   // giảm
         BC: ["C", "#f59e0b", "aboveBar"],   // hồi
         CD: ["D", "#16a34a", "belowBar"],   // giảm
@@ -259,7 +298,7 @@
 
         if (segKey === "A") {
           const p = getPoint("A");
-          if (p && Number.isFinite(p.high)) val = p.high; // A hiển thị High (chiều DOWN)
+          if (p && Number.isFinite(p.high)) val = p.high; // A hiển thị High (DOWN)
         } else {
           val = seg[segKey];
         }
@@ -271,8 +310,8 @@
 
         mergedMarkers.push({
           time: point.time,
-          position: position,
-          color: color,
+          position,
+          color,
           shape: "arrowDown",
           text: `${pointLabel}\n${segKey}=${round(val, 2)}`
         });
@@ -303,60 +342,26 @@
       FGOverDE: ratioPct(seg.FG, seg.DE),
     };
 
-    // 3) Làm tròn 2 chữ số
+    // 3) Làm tròn hiển thị
     const ratios = Object.fromEntries(
       Object.entries(rawRatios).map(([k, v]) => [k, v === null ? null : round(v, 2)])
     );
 
-    // 4) Ngưỡng
-    const thresholds = {
-      BCOverAB: getThreshold("ratioBCOverAB", 70),
-      DEOverCD: getThreshold("ratioDEOverCD", 60),
-      FGOverEF: getThreshold("ratioFGOverEF", 50),
-      EFOverDE: getThreshold("ratioEFOverDE", 70),
-      CDOverBC: getThreshold("ratioCDOverBC", 65),
-      DEOverBC: getThreshold("ratioDEOverBC", 60),
-      FGOverDE: getThreshold("ratioFGOverDE", 60),
-    };
-
-    // 5) So sánh theo mode
+    // 4) So sánh theo Min–Max (không còn override)
     const compared = {
-      BCOverAB: compareRatio(ratios.BCOverAB, thresholds.BCOverAB, "<="),
-      DEOverCD: compareRatio(ratios.DEOverCD, thresholds.DEOverCD, "<="),
-      FGOverEF: compareRatio(ratios.FGOverEF, thresholds.FGOverEF, "<="),
-      EFOverDE: compareRatio(ratios.EFOverDE, thresholds.EFOverDE, ">="),
-      CDOverBC: compareRatio(ratios.CDOverBC, thresholds.CDOverBC, ">="),
-      DEOverBC: compareRatio(ratios.DEOverBC, thresholds.DEOverBC, ">="),
-      FGOverDE: compareRatio(ratios.FGOverDE, thresholds.FGOverDE, ">="),
+      BCOverAB: checkMinMax("ratioBCOverAB", ratios.BCOverAB),
+      DEOverCD: checkMinMax("ratioDEOverCD", ratios.DEOverCD),
+      FGOverEF: checkMinMax("ratioFGOverEF", ratios.FGOverEF),
+      EFOverDE: checkMinMax("ratioEFOverDE", ratios.EFOverDE),
+      CDOverBC: checkMinMax("ratioCDOverBC", ratios.CDOverBC),
+      DEOverBC: checkMinMax("ratioDEOverBC", ratios.DEOverBC),
+      FGOverDE: checkMinMax("ratioFGOverDE", ratios.FGOverDE),
     };
 
-    // Quy tắc bổ sung: FG/DE > cap thì KHÔNG ĐẠT (override)
-    const fgdeCapDown = getThreshold("ratioFGOverDECap", 80);
-    if (ratios.FGOverDE !== null && Number.isFinite(ratios.FGOverDE) && ratios.FGOverDE > fgdeCapDown) {
-      compared.FGOverDE = { value: ratios.FGOverDE, pass: false };
-    }
+    // 5) Lưu kết quả tạm (DOWN)
+    window.ratioResultsDown = compared;
 
-    // Quy tắc bổ sung mới: EF/DE > cap thì KHÔNG ĐẠT (override)
-    const efdeCapDown = getThreshold("ratioEFOverDECapDown", 200); // default 200
-    if (ratios.EFOverDE !== null && Number.isFinite(ratios.EFOverDE) && ratios.EFOverDE > efdeCapDown) {
-      compared.EFOverDE = { value: ratios.EFOverDE, pass: false };
-    }
-
-    // Caps (giới hạn trên) cho DOWN
-    const cdBcCapDown = getThreshold("ratioCDOverBCDownCap", Infinity);
-    // Chặn trần CD/BC cho DOWN: nếu vượt cap => KHÔNG ĐẠT
-    if (ratios.CDOverBC !== null && Number.isFinite(ratios.CDOverBC) && ratios.CDOverBC > cdBcCapDown) {
-      compared.CDOverBC = { value: ratios.CDOverBC, pass: false };
-    }
-
-    // 6) Lưu kết quả tạm (DOWN)
-    window.ratioResultsDown = { 
-      ...compared,
-      DEOverBC: compared.DEOverBC,
-      FGOverDE: compared.FGOverDE,
-    };
-
-    // 7) Kết quả cuối cùng (DOWN): tất cả true ⇒ true; có false ⇒ false; null bỏ qua
+    // 6) Kết quả cuối cùng (DOWN): tất cả true ⇒ true; có false ⇒ false; null bỏ qua
     const passFlags = Object.values(window.ratioResultsDown)
       .map(x => x.pass)
       .filter(p => p !== null);
@@ -371,31 +376,21 @@
     }
     window.overallResultDown = overall;
 
-    // === Đọc bằng loa khi tất cả ĐẠT (DOWN) và chưa đọc trước đó ===
-    // if (overall === true) {
-    //   if (!window._lastSpokenDown) {
-    //     window.speakText("Tất cả tiêu chí DOWN đã đạt");
-    //     window._lastSpokenDown = true;
-    //   }
-    // } else {
-    //   // nếu không đạt nữa thì cho phép đọc lại lần sau khi đạt
-    //   window._lastSpokenDown = false;
-    // }
-
+    // 7) Voice (tuỳ chọn)
     if (overall === true) {
-      window.speakText("DOWN: Tất cả tiêu chí đã đạt");
+      window.speakText?.("DOWN: Tất cả tiêu chí đã đạt");
     } else if (overall === false) {
-      window.speakText("DOWN: Không đạt tiêu chí");
+      window.speakText?.("DOWN: Không đạt tiêu chí");
     }
 
     // 8) Render
-    renderTable(ratios, thresholds, compared, overall);
+    renderTable(ratios, compared, overall);
   }
 
   // Public API
   window.downRatioPanel = {
     run,
-    // Nếu đổi waveSettings → tính lại để đồng bộ bảng & markers
+    // Khi đổi preset → tính lại để đồng bộ bảng & markers
     rerender: () => run(),
   };
 })();

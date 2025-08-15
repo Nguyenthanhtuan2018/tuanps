@@ -1,20 +1,20 @@
-// javascript/upRatioPanel.js
-// Panel tính & hiển thị tỉ lệ (UP) sau khi đã có A..G và waveSettings.
-// Quy tắc so sánh:
-// - BC/AB, DE/CD, FG/EF: <= threshold => ĐẠT
-// - EF/DE, CD/BC:       >= threshold => ĐẠT
-// - Chỉ tính tỉ lệ khi cả hai đoạn có giá trị và mẫu > 0
-// - Đoạn giá = |Giá(Y) - Giá(X)| với B,D,F dùng high; A,C,E,G dùng low
-// - Lưu kết quả tạm vào window.ratioResults, và kết quả chung vào window.overallResult
+// javascript/upRatioPanel.js (MIN–MAX + Presets, giữ marker khi đổi rule set)
+// Panel tính & hiển thị tỉ lệ (UP) sau khi đã có A..G.
+// - Ưu tiên preset từ window.waveProfiles + window.waveActiveProfile.
+// - Fallback sang window.waveSettings.{ratioKey: {min,max}} nếu không có preset.
+// - KHÔNG còn override/cap rời rạc; tất cả theo min–max.
+// - rerender() -> run(true): chỉ re-validate, GIỮ markers A..G đang có.
+//
+// Quy tắc & dữ liệu:
+// - Chỉ tính tỉ lệ khi cả hai đoạn có giá trị & mẫu > 0
+// - Chiều UP: B,D,F dùng HIGH; A,C,E,G dùng LOW
+// - Lưu kết quả vào window.ratioResults và window.overallResult
 
 (function () {
-  // ----- Helpers -----
-  const round = (num, digits = 2) =>
-    Number.isFinite(num) ? Number(num.toFixed(digits)) : num;
+  // ===== Helpers =====
+  const round = (num, digits = 2) => Number.isFinite(num) ? Number(num.toFixed(digits)) : num;
 
-  const textOrDash = (v) =>
-    v === null || v === undefined ? "–" : String(v);
-
+  // Lấy điểm theo nhãn (đúng với biến UP của bạn)
   function getPoint(label) {
     switch (label) {
       case "A": return Array.isArray(window.selectedPointsUP) ? window.selectedPointsUP[0] : null;
@@ -28,7 +28,7 @@
     }
   }
 
-  // Theo chiều UP: đỉnh = B,D,F (high); đáy = A,C,E,G (low)
+  // Chiều UP: B,D,F = HIGH; A,C,E,G = LOW
   function pointPrice(label, p) {
     if (!p) return null;
     const highs = new Set(["B", "D", "F"]);
@@ -38,42 +38,62 @@
     return null;
   }
 
-  // Biên độ đoạn tuyệt đối |Y - X|; chỉ tính khi đủ 2 điểm và có giá hợp lệ
+  // Biên độ đoạn tuyệt đối |Y - X|
   function segmentAbs(X, Y) {
     const pX = getPoint(X);
     const pY = getPoint(Y);
-    if (!pX || !pY) return null; // thiếu điểm -> không tính
+    if (!pX || !pY) return null; // thiếu điểm
     const vX = pointPrice(X, pX);
     const vY = pointPrice(Y, pY);
     if (!Number.isFinite(vX) || !Number.isFinite(vY)) return null;
     return Math.abs(vY - vX);
   }
 
-  function getThreshold(key, fallback) {
-    const ws = window.waveSettings || {};
-    const v = ws[key];
-    return typeof v === "number" && Number.isFinite(v) ? v : fallback;
-  }
-
-  // Tính tỉ lệ %: chỉ khi cả hai đoạn có và mẫu > 0
+  // Tỉ lệ %: chỉ khi có và mẫu > 0
   function ratioPct(num, den) {
     if (num === null || den === null) return null;
-    if (den <= 0) return null; // theo yêu cầu: đoạn = 0 thì không tính tỉ lệ
+    if (den <= 0) return null;
     return (num / den) * 100;
   }
 
-  // So sánh với ngưỡng theo mode ('<=' hoặc '>=')
-  function compareRatio(valuePct, threshold, mode = '>=') {
-    if (valuePct === null) return { value: null, pass: null };
-    if (!Number.isFinite(valuePct)) return { value: null, pass: null };
-    if (mode === '<=') {
-      return { value: valuePct, pass: valuePct <= threshold };
-    } else {
-      return { value: valuePct, pass: valuePct >= threshold };
+  // ===== Preset & Min–Max =====
+  function getRangeCfg(nameKey) {
+    // 1) Ưu tiên profile: waveProfiles + waveActiveProfile
+    const active = window.waveActiveProfile || "tiep_dien";
+    if (window.waveProfiles && window.waveProfiles[active]) {
+      const cfg = window.waveProfiles[active][nameKey] || {};
+      const min = (typeof cfg.min === "number" && Number.isFinite(cfg.min)) ? cfg.min : -Infinity;
+      const max = (typeof cfg.max === "number" && Number.isFinite(cfg.max)) ? cfg.max : Infinity;
+      return { min, max, source: "profile", active };
     }
+    // 2) Fallback sang waveSettings.{nameKey:{min,max}}
+    const ws = window.waveSettings || {};
+    const cfg = ws[nameKey] || {};
+    const min = (typeof cfg.min === "number" && Number.isFinite(cfg.min)) ? cfg.min : -Infinity;
+    const max = (typeof cfg.max === "number" && Number.isFinite(cfg.max)) ? cfg.max : Infinity;
+    return { min, max, source: "settings", active };
   }
 
-  // Tạo container nếu chưa có
+  // So sánh theo min–max (kèm reason để debug nhanh)
+  function checkMinMax(nameKey, valuePct) {
+    if (valuePct === null || !Number.isFinite(valuePct)) {
+      return { value: null, pass: null, reason: "–" };
+    }
+    const { min, max } = getRangeCfg(nameKey);
+    if (valuePct < min) return { value: valuePct, pass: false, reason: `value < min(${min})` };
+    if (valuePct > max) return { value: valuePct, pass: false, reason: `value > max(${max})` };
+    return { value: valuePct, pass: true, reason: "OK" };
+  }
+
+  // Hiển thị min–max gọn cho UI
+  function formatRange(nameKey) {
+    const { min, max } = getRangeCfg(nameKey);
+    const minTxt = Number.isFinite(min) && min !== -Infinity ? `≥${min}` : "";
+    const maxTxt = Number.isFinite(max) && max !==  Infinity ? `≤${max}` : "";
+    return (minTxt && maxTxt) ? `${minTxt} & ${maxTxt}` : (minTxt || maxTxt || "–");
+  }
+
+  // ===== UI Table =====
   function ensureContainer() {
     let container = document.getElementById("ratio-table-container");
     if (!container) {
@@ -85,7 +105,7 @@
     return container;
   }
 
-  function renderTable(ratios, thresholds, compared, overall) {
+  function renderTable(ratios, compared, overall) {
     const container = ensureContainer();
     container.innerHTML = "";
 
@@ -101,9 +121,23 @@
     header.style.margin = "8px 0 12px 0";
 
     const title = document.createElement("div");
-    title.textContent = "Tỉ lệ & So sánh (UP)";
-    title.style.fontSize = "16px";
-    title.style.fontWeight = "600";
+    title.style.display = "flex";
+    title.style.alignItems = "center";
+    title.style.gap = "12px";
+
+    const titleText = document.createElement("span");
+    titleText.textContent = "Tỉ lệ & So sánh (UP)";
+    titleText.style.fontSize = "16px";
+    titleText.style.fontWeight = "600";
+
+    const profileHint = document.createElement("span");
+    const active = window.waveActiveProfile || "tiep_dien";
+    profileHint.textContent = `Preset: ${active}`;
+    profileHint.style.fontSize = "12px";
+    profileHint.style.color = "#6b7280";
+
+    title.appendChild(titleText);
+    title.appendChild(profileHint);
 
     const overallBadge = document.createElement("span");
     overallBadge.textContent =
@@ -130,7 +164,7 @@
 
     const thead = document.createElement("thead");
     const trh = document.createElement("tr");
-    const cols = ["Ratio", "Value (%)", "Threshold", "Pass"]; // <- đã bỏ cột cuối
+    const cols = ["Ratio", "Value (%)", "Min–Max", "Pass"];
     cols.forEach((c, i) => {
       const th = document.createElement("th");
       th.textContent = c;
@@ -147,14 +181,15 @@
 
     const tbody = document.createElement("tbody");
 
+    // [Nhãn hiển thị, ratioKey nội bộ, nameKey trong settings/preset]
     const rows = [
-      ["BC/AB", "BCOverAB", "<="],
-      ["DE/CD", "DEOverCD", "<="],
-      ["FG/EF", "FGOverEF", "<="],
-      ["EF/DE", "EFOverDE", ">="],
-      ["CD/BC", "CDOverBC", ">="],
-      ["DE/BC", "DEOverBC", ">="],
-      ["FG/DE", "FGOverDE", ">="],
+      ["BC/AB", "BCOverAB", "ratioBCOverAB"],
+      ["DE/CD", "DEOverCD", "ratioDEOverCD"],
+      ["FG/EF", "FGOverEF", "ratioFGOverEF"],
+      ["EF/DE", "EFOverDE", "ratioEFOverDE"],
+      ["CD/BC", "CDOverBC", "ratioCDOverBC"],
+      ["DE/BC", "DEOverBC", "ratioDEOverBC"],
+      ["FG/DE", "FGOverDE", "ratioFGOverDE"],
     ];
 
     function passCell(pass) {
@@ -174,7 +209,7 @@
       return span;
     }
 
-    rows.forEach(([label, key]) => {
+    rows.forEach(([label, ratioKey, nameKey]) => {
       const tr = document.createElement("tr");
 
       const tdRatio = document.createElement("td");
@@ -186,99 +221,111 @@
       tdVal.style.textAlign = "center";
       tdVal.style.padding = "8px";
       tdVal.style.borderBottom = "1px solid #f3f4f6";
-      tdVal.textContent = textOrDash(ratios[key]);
+      const v = ratios[ratioKey];
+      tdVal.textContent = (v === null || !Number.isFinite(v)) ? "–" : `${round(v, 2)}%`;
 
-      const tdThr = document.createElement("td");
-      tdThr.style.textAlign = "center";
-      tdThr.style.padding = "8px";
-      tdThr.style.borderBottom = "1px solid #f3f4f6";
-      tdThr.textContent = textOrDash(thresholds[key]);
+      const tdRange = document.createElement("td");
+      tdRange.style.textAlign = "center";
+      tdRange.style.padding = "8px";
+      tdRange.style.borderBottom = "1px solid #f3f4f6";
+      tdRange.textContent = formatRange(nameKey);
 
       const tdPass = document.createElement("td");
       tdPass.style.textAlign = "center";
       tdPass.style.padding = "8px";
       tdPass.style.borderBottom = "1px solid #f3f4f6";
-      tdPass.appendChild(passCell((window.ratioResults?.[key] ?? {}).pass ?? null));
-  
+      tdPass.appendChild(passCell((window.ratioResults?.[ratioKey] ?? {}).pass ?? null));
+      tdPass.title = (window.ratioResults?.[ratioKey]?.reason) || "";
+
       tr.appendChild(tdRatio);
       tr.appendChild(tdVal);
-      tr.appendChild(tdThr);
+      tr.appendChild(tdRange);
       tr.appendChild(tdPass);
       tbody.appendChild(tr);
     });
-   
+
     table.appendChild(thead);
     table.appendChild(tbody);
 
     wrap.appendChild(header);
     wrap.appendChild(table);
     container.appendChild(wrap);
-  }  
+  }
 
-  function run() {
+  // preserveMarkers = true  -> chỉ validate + cập nhật bảng, KHÔNG setMarkers
+  // preserveMarkers = false -> validate + vẽ lại markers (dùng khi chọn/chỉnh điểm)
+  function run(preserveMarkers = false) {
     // 1) Tính các đoạn tuyệt đối (thiếu điểm -> null)
     const seg = {
       AB: segmentAbs("A", "B"),
-      BC: segmentAbs("C", "B"), // BC = |B.high - C.low|
+      BC: segmentAbs("C", "B"), // BC = |B.high - C.low| theo chiều UP
       CD: segmentAbs("C", "D"),
       DE: segmentAbs("E", "D"),
       EF: segmentAbs("E", "F"),
       FG: segmentAbs("G", "F"),
     };
 
-    // ==== Hiển thị giá trị đoạn ngay trên marker (B,C,D,E,F,G) ====
-    try {
-      // Map đoạn -> [điểm kết thúc, màu, vị trí marker]
-      const segmentDisplayMap = {
-        A:  ["A", "#0ea5e9", "belowBar"],   // xanh ngọc - hiển thị Low
-        AB: ["B", "#2563eb", "aboveBar"],   // xanh dương
-        BC: ["C", "#f59e0b", "belowBar"],   // cam
-        CD: ["D", "#16a34a", "aboveBar"],   // xanh lá
-        DE: ["E", "#dc2626", "belowBar"],   // đỏ
-        EF: ["F", "#7c3aed", "aboveBar"],   // tím
-        FG: ["G", "#db2777", "belowBar"],   // hồng đậm
-      };      
+    // ==== VẼ MARKERS (chỉ khi KHÔNG preserveMarkers) ====
+    if (!preserveMarkers) {
+      try {
+        // Map đoạn/điểm -> [điểm hiển thị, màu, vị trí]
+        const segmentDisplayMap = {
+          A:  ["A", "#0ea5e9", "belowBar"],   // Low của A (UP)
+          AB: ["B", "#2563eb", "aboveBar"],   // tăng
+          BC: ["C", "#f59e0b", "belowBar"],   // hồi
+          CD: ["D", "#16a34a", "aboveBar"],   // tăng
+          DE: ["E", "#dc2626", "belowBar"],   // hồi
+          EF: ["F", "#7c3aed", "aboveBar"],   // tăng
+          FG: ["G", "#db2777", "belowBar"],   // hồi
+        };
 
-      // Lấy markers hiện có, loại bỏ marker chữ B..G để thay bằng bản có text đoạn
-      let mergedMarkers = [
-        ...(Array.isArray(window.upMarkers) ? window.upMarkers.filter(m => !["B","C","D","E","F","G"].includes(m.text)) : []),
-        ...(Array.isArray(window.downMarkers) ? window.downMarkers : []),
-      ];
+        // Lấy markers hiện có, bỏ marker chữ A..G để thay bằng bản có text đoạn
+        const getArr = (name) => (Array.isArray(window[name]) ? window[name] : []);
+        const baseUp   = getArr("upMarkers").filter(m => !["A","B","C","D","E","F","G"].includes(m.text));
+        const baseDown = getArr("downMarkers").filter(m => !["A","B","C","D","E","F","G"].includes(m.text));
+        let mergedMarkers = [...baseUp, ...baseDown];
 
-      // Tạo marker mới cho từng đoạn có giá trị
-      Object.entries(segmentDisplayMap).forEach(([segKey, [pointLabel, color, position]]) => {
-        let val;
-        if (segKey === "A") {
-          const p = getPoint("A");
-          if (!p || !Number.isFinite(p.low)) return;
-          val = p.low; // giá trị Low của A
-        } else {
-          val = seg[segKey];
-        }
-        if (val === null) return;
-      
-        const point = getPoint(pointLabel);
-        if (!point || !point.time) return;
-      
-        mergedMarkers.push({
-          time: point.time,
-          position: position,
-          color: color,
-          shape: "arrowUp",
-          text: `${pointLabel}\n${segKey}=${round(val, 2)}`
+        // Tạo marker mới (chỉ thêm marker đoạn khi có giá trị)
+        Object.entries(segmentDisplayMap).forEach(([segKey, [pointLabel, color, position]]) => {
+          let val = null;
+
+          if (segKey === "A") {
+            const p = getPoint("A");
+            if (p && Number.isFinite(p.low)) val = p.low; // A hiển thị Low (UP)
+          } else {
+            val = seg[segKey];
+          }
+
+          if (val === null) return;
+
+          const point = getPoint(pointLabel);
+          if (!point || !point.time) return;
+
+          mergedMarkers.push({
+            time: point.time,
+            position,
+            color,
+            shape: "arrowUp",
+            text: `${pointLabel}\n${segKey}=${round(val, 2)}`
+          });
         });
-      });      
 
-      if (window.candleSeries && typeof window.candleSeries.setMarkers === "function") {
-        window.candleSeries.setMarkers(mergedMarkers);
+        // Set markers lên series
+        const series =
+          (typeof window !== "undefined" && window.candleSeries) ||
+          (typeof candleSeries !== "undefined" ? candleSeries : null);
+        if (series && typeof series.setMarkers === "function") {
+          series.setMarkers(mergedMarkers);
+        } else {
+          console.warn("[upRatioPanel] Không tìm thấy candleSeries để setMarkers");
+        }
+      } catch (e) {
+        console.warn("[upRatioPanel] Cannot set segment markers:", e);
       }
-    } catch (e) {
-      // tránh crash UI nếu thiếu biến global
-      console.warn("[upRatioPanel] Cannot set segment markers:", e);
     }
     // ==== Hết phần hiển thị marker ====
 
-    // 2) Tính các tỉ lệ yêu cầu (mẫu > 0)
+    // 2) Tính tỉ lệ (mẫu > 0)
     const rawRatios = {
       BCOverAB: ratioPct(seg.BC, seg.AB),
       DEOverCD: ratioPct(seg.DE, seg.CD),
@@ -289,109 +336,54 @@
       FGOverDE: ratioPct(seg.FG, seg.DE),
     };
 
-    // 3) Làm tròn 2 chữ số
+    // 3) Làm tròn hiển thị
     const ratios = Object.fromEntries(
       Object.entries(rawRatios).map(([k, v]) => [k, v === null ? null : round(v, 2)])
     );
 
-    // 4) Ngưỡng từ settings (có default dự phòng)
-    const thresholds = {
-      BCOverAB: getThreshold("ratioBCOverAB", 60),
-      DEOverCD: getThreshold("ratioDEOverCD", 70),
-      FGOverEF: getThreshold("ratioFGOverEF", 70),
-      EFOverDE: getThreshold("ratioEFOverDE", 70),
-      CDOverBC: getThreshold("ratioCDOverBC", 70),
-      DEOverBC: getThreshold("ratioDEOverBC", 60),
-      FGOverDE: getThreshold("ratioFGOverDE", 60),
-    };
-
-    // 5) So sánh theo mode từng tỉ lệ
+    // 4) So sánh theo Min–Max (không còn override)
     const compared = {
-      BCOverAB: compareRatio(ratios.BCOverAB, thresholds.BCOverAB, "<="),
-      DEOverCD: compareRatio(ratios.DEOverCD, thresholds.DEOverCD, "<="),
-      FGOverEF: compareRatio(ratios.FGOverEF, thresholds.FGOverEF, "<="),
-      EFOverDE: compareRatio(ratios.EFOverDE, thresholds.EFOverDE, ">="),
-      CDOverBC: compareRatio(ratios.CDOverBC, thresholds.CDOverBC, ">="),
-      DEOverBC: compareRatio(ratios.DEOverBC, thresholds.DEOverBC, ">="),
-      FGOverDE: compareRatio(ratios.FGOverDE, thresholds.FGOverDE, ">="),
+      BCOverAB: checkMinMax("ratioBCOverAB", ratios.BCOverAB),
+      DEOverCD: checkMinMax("ratioDEOverCD", ratios.DEOverCD),
+      FGOverEF: checkMinMax("ratioFGOverEF", ratios.FGOverEF),
+      EFOverDE: checkMinMax("ratioEFOverDE", ratios.EFOverDE),
+      CDOverBC: checkMinMax("ratioCDOverBC", ratios.CDOverBC),
+      DEOverBC: checkMinMax("ratioDEOverBC", ratios.DEOverBC),
+      FGOverDE: checkMinMax("ratioFGOverDE", ratios.FGOverDE),
     };
 
-    // Quy tắc bổ sung: FG/DE > cap thì KHÔNG ĐẠT (override)
-    const fgdeCapUp = getThreshold("ratioFGOverDECap", 80);
-    if (ratios.FGOverDE !== null && Number.isFinite(ratios.FGOverDE) && ratios.FGOverDE > fgdeCapUp) {
-      compared.FGOverDE = { value: ratios.FGOverDE, pass: false };
-    }
+    // 5) Lưu kết quả tạm (UP)
+    window.ratioResults = compared;
 
-    // Quy tắc bổ sung mới: EF/DE > cap thì KHÔNG ĐẠT (override)
-    const efdeCapUp = getThreshold("ratioEFOverDECap", 200); // default 200
-    if (ratios.EFOverDE !== null && Number.isFinite(ratios.EFOverDE) && ratios.EFOverDE > efdeCapUp) {
-      compared.EFOverDE = { value: ratios.EFOverDE, pass: false };
-    }
-
-    // Caps (giới hạn trên) cho UP
-    const cdBcCapUp = getThreshold("ratioCDOverBCUpCap", Infinity);
-    // Chặn trần CD/BC cho UP: nếu vượt cap => KHÔNG ĐẠT
-    if (ratios.CDOverBC !== null && Number.isFinite(ratios.CDOverBC) && ratios.CDOverBC > cdBcCapUp) {
-      compared.CDOverBC = { value: ratios.CDOverBC, pass: false };
-    }
-
-    // 6) Lưu kết quả tạm vào global
-    window.ratioResults = {
-      BCOverAB: compared.BCOverAB,
-      DEOverCD: compared.DEOverCD,
-      FGOverEF: compared.FGOverEF,
-      EFOverDE: compared.EFOverDE,
-      CDOverBC: compared.CDOverBC,
-      DEOverBC: compared.DEOverBC,
-      FGOverDE: compared.FGOverDE,
-    };
-
-    // 7) Tính "kết quả cuối cùng":
-    // - tất cả pass===true => true
-    // - nếu có bất kỳ false => false
-    // - null bỏ qua
+    // 6) Kết quả cuối cùng (UP): tất cả true ⇒ true; có false ⇒ false; null bỏ qua
     const passFlags = Object.values(window.ratioResults)
-      .map((x) => x.pass)
-      .filter((p) => p !== null);
+      .map(x => x.pass)
+      .filter(p => p !== null);
 
     let overall = null;
     if (passFlags.length > 0) {
-      overall = passFlags.every((p) => p === true)
+      overall = passFlags.every(p => p === true)
         ? true
-        : passFlags.some((p) => p === false)
+        : passFlags.some(p => p === false)
         ? false
         : null;
     }
     window.overallResult = overall;
 
-    // === Đọc bằng loa khi tất cả ĐẠT và chưa đọc trước đó ===
-    // if (overall === true) {
-    //   if (!window._lastSpokenUp) {
-    //     speakText("Tất cả tiêu chí UP đã đạt");
-    //     window._lastSpokenUp = true;
-    //   }
-    // } else {
-    //   window._lastSpokenUp = false;
-    // }
-
+    // 7) Voice (tuỳ chọn)
     if (overall === true) {
-      window.speakText("UP: Tất cả tiêu chí đã đạt");
+      window.speakText?.("UP: Tất cả tiêu chí đã đạt");
     } else if (overall === false) {
-      window.speakText("UP: Không đạt tiêu chí");
+      window.speakText?.("UP: Không đạt tiêu chí");
     }
 
-    // 8) Render bảng UI
-    renderTable(ratios, thresholds, compared, overall);
+    // 8) Render
+    renderTable(ratios, compared, overall);
   }
 
   // Public API
   window.upRatioPanel = {
-    run, // gọi sau khi click xong Stop Point
-    rerender: () => {
-      if (window.ratioResults) {
-        // Tính lại để đảm bảo đồng bộ marker & bảng khi thay đổi settings
-        run();
-      }
-    },
+    run,                 // dùng khi chọn/chỉnh điểm -> cập nhật markers + validate
+    rerender: () => run(true), // dùng khi đổi rule set -> CHỈ validate, GIỮ markers
   };
 })();
