@@ -61,9 +61,10 @@
       sel.style.border = "1px solid #e5e7eb";
       sel.style.borderRadius = "6px";
       sel.innerHTML = `
-        <option value="tiep_dien">Tiếp diễn</option>
+        <option value="tiep_dien">Xanh lá</option>
         <option value="kathy">Kathy</option>
-        <option value="sideway">Sideway</option>
+        <option value="sideway">3 nền</option>
+        <option value="con_meo">Con mèo</option>
       `;
       sel.value = window.waveActiveProfile || "tiep_dien";
   
