@@ -16,13 +16,13 @@ if (typeof chart !== 'undefined') {
 // === 3 bộ rule dạng MIN–MAX cho cùng một schema ===
 // Bạn có thể chỉnh số cho hợp dữ liệu thực tế
 window.waveProfiles = {
-  tiep_dien: { // thuật toán sóng tiếp diễn tăng/giảm dần
+  tiep_dien: { // thuật toán sóng tiếp diễn xanh lá
     ratioBCOverAB: { min: 35,   max: 70 },
     ratioDEOverCD: { min: 25.00,   max: 85.92 },
-    ratioFGOverEF: { min: 35.48,   max: 80.39 },
-    ratioEFOverDE: { min: 70.00,   max: 263.83 },
+    ratioFGOverEF: { min: 35,   max: 80.39 },
+    ratioEFOverDE: { min: 70.00,   max: 263.83 }, // Có thể tối ưu max 170
     ratioCDOverBC: { min: 110,   max: 170 },
-    ratioDEOverBC: { min: 38.30,   max: 91 },
+    ratioDEOverBC: { min: 38,   max: 91 },
     ratioFGOverDE: { min: 32.00,   max: 95.56 },
   },
 
