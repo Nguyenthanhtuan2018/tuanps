@@ -27,13 +27,13 @@ window.waveProfiles = {
   },
 
   kathy: { // thuật toán sóng kathy (ví dụ chặt hơn ở hồi/thu hẹp)
-    ratioBCOverAB: { min: 0,   max: 65 },
-    ratioDEOverCD: { min: 0,   max: 65 },
-    ratioFGOverEF: { min: 0,   max: 70 },
-    ratioEFOverDE: { min: 75,  max: 190 },
-    ratioCDOverBC: { min: 125, max: 200 },
-    ratioDEOverBC: { min: 50,  max: 90 },
-    ratioFGOverDE: { min: 70,  max: 95 },
+    ratioBCOverAB: { min: 75,   max: 120 },
+    ratioDEOverCD: { min: 0,   max: 999 },
+    ratioFGOverEF: { min: 0,   max: 999 },
+    ratioEFOverDE: { min: 0,  max: 999 },
+    ratioCDOverBC: { min: 75, max: 120 },
+    ratioDEOverBC: { min: 0,  max: 999 },
+    ratioFGOverDE: { min: 0,  max: 999 },
   },
 
   sideway: { // thuật toán sóng tiếp diễn 3 nền
