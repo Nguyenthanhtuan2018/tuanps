@@ -45,6 +45,15 @@ window.waveProfiles = {
     ratioDEOverBC: { min: 38,   max: 91 },
     ratioFGOverDE: { min: 32.00,   max: 95.56 },
   },
+  con_meo: { // thuật toán sóng tiếp diễn con mèo
+    ratioBCOverAB: { min: 29,   max: 70 },   
+    ratioDEOverCD: { min: 25,   max: 160 },  
+    ratioFGOverEF: { min: 30,   max: 90 },   
+    ratioEFOverDE: { min: 50,   max: 170 }, 
+    ratioCDOverBC: { min: 60,   max: 170 },   
+    ratioDEOverBC: { min: 38,   max: 100 },   
+    ratioFGOverDE: { min: 32,   max: 100 },
+  }
 };
 
 // === preset đang chọn (mặc định) ===
