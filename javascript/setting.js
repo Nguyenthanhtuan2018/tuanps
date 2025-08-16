@@ -20,7 +20,7 @@ window.waveProfiles = {
     ratioBCOverAB: { min: 35,   max: 70 },
     ratioDEOverCD: { min: 25.00,   max: 85.92 },
     ratioFGOverEF: { min: 35,   max: 80.39 },
-    ratioEFOverDE: { min: 70.00,   max: 263.83 }, // Có thể tối ưu max 170
+    ratioEFOverDE: { min: 70.00,   max: 170 },
     ratioCDOverBC: { min: 110,   max: 170 },
     ratioDEOverBC: { min: 38,   max: 91 },
     ratioFGOverDE: { min: 32.00,   max: 95.56 },
@@ -36,14 +36,14 @@ window.waveProfiles = {
     ratioFGOverDE: { min: 70,  max: 95 },
   },
 
-  sideway: { // thuật toán sóng tiếp diễn dạng sideway (thoáng hơn)
-    ratioBCOverAB: { min: 0,   max: 75 },
-    ratioDEOverCD: { min: 0,   max: 75 },
-    ratioFGOverEF: { min: 0,   max: 80 },
-    ratioEFOverDE: { min: 65,  max: 210 },
-    ratioCDOverBC: { min: 110, max: 220 },
-    ratioDEOverBC: { min: 35,  max: 100 },
-    ratioFGOverDE: { min: 50,  max: 99 },
+  sideway: { // thuật toán sóng tiếp diễn 3 nền
+    ratioBCOverAB: { min: 35,   max: 72 },
+    ratioDEOverCD: { min: 25.00,   max: 85.92 },
+    ratioFGOverEF: { min: 30,   max: 80.39 },
+    ratioEFOverDE: { min: 70.00,   max: 263.83 },
+    ratioCDOverBC: { min: 110,   max: 170 },
+    ratioDEOverBC: { min: 38,   max: 91 },
+    ratioFGOverDE: { min: 32.00,   max: 95.56 },
   },
 };
 
