@@ -51,8 +51,17 @@ window.waveProfiles = {
     ratioFGOverEF: { min: 30,   max: 90 },   
     ratioEFOverDE: { min: 50,   max: 170 }, 
     ratioCDOverBC: { min: 60,   max: 170 },   
-    ratioDEOverBC: { min: 38,   max: 100 },   
+    ratioDEOverBC: { min: 66,   max: 100 },   
     ratioFGOverDE: { min: 32,   max: 100 },
+  },
+  xanh_duong: {
+  ratioBCOverAB: { min: 29,   max: 60 },
+  ratioDEOverCD: { min: 55,   max: 97 },
+  ratioFGOverEF: { min: 38,   max: 86 },
+  ratioEFOverDE: { min: 54, max: 200 },
+  ratioCDOverBC: { min: 54.5, max: 101 },
+  ratioDEOverBC: { min: 32,   max: 100 },
+  ratioFGOverDE: { min: 44,   max: 100 },
   }
 };
 

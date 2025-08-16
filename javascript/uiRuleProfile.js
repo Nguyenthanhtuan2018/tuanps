@@ -65,6 +65,7 @@
         <option value="kathy">Kathy</option>
         <option value="sideway">3 nền</option>
         <option value="con_meo">Con mèo</option>
+        <option value="xanh_duong">Xanh dương</option>
       `;
       sel.value = window.waveActiveProfile || "tiep_dien";
   
