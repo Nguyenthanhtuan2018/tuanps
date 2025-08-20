@@ -37,13 +37,13 @@ window.waveProfiles = {
   },
 
   sideway: { // thuật toán sóng tiếp diễn 3 nền
-    ratioBCOverAB: { min: 35,   max: 72 },
+    ratioBCOverAB: { min: 35,   max: 87 },
     ratioDEOverCD: { min: 25.00,   max: 85.92 },
     ratioFGOverEF: { min: 30,   max: 80.39 },
     ratioEFOverDE: { min: 70.00,   max: 263.83 },
     ratioCDOverBC: { min: 110,   max: 170 },
     ratioDEOverBC: { min: 38,   max: 91 },
-    ratioFGOverDE: { min: 32.00,   max: 95.56 },
+    ratioFGOverDE: { min: 32.00,   max: 97 },
   },
   con_meo: { // thuật toán sóng tiếp diễn con mèo
     ratioBCOverAB: { min: 29,   max: 70 },   
