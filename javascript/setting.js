@@ -20,10 +20,10 @@ window.waveProfiles = {
     ratioBCOverAB: { min: 35,   max: 70 },
     ratioDEOverCD: { min: 25.00,   max: 85.92 },
     ratioFGOverEF: { min: 35,   max: 80.39 },
-    ratioEFOverDE: { min: 70.00,   max: 170 },
+    ratioEFOverDE: { min: 70.00,   max: 180 },
     ratioCDOverBC: { min: 110,   max: 170 },
     ratioDEOverBC: { min: 38,   max: 91 },
-    ratioFGOverDE: { min: 32.00,   max: 95.56 },
+    ratioFGOverDE: { min: 32.00,   max: 97 },
   },
 
   kathy: { // thuật toán sóng kathy (ví dụ chặt hơn ở hồi/thu hẹp)
