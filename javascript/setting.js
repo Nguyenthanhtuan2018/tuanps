@@ -71,6 +71,15 @@ window.waveProfiles = {
   ratioCDOverBC: { min: 110,  max: 168.57 }, 
   ratioDEOverBC: { min: 65.71,   max: 98 }, 
   ratioFGOverDE: { min: 34.78,   max: 76.07 }, 
+  },
+  rule_11: { // áp dụng cho 3 nền và xanh lá
+    ratioBCOverAB: { min: 35,   max: 87 },
+    ratioDEOverCD: { min: 25.00,   max: 85.92 },
+    ratioFGOverEF: { min: 30,   max: 80.39 },
+    ratioEFOverDE: { min: 70.00,   max: 263.83 },
+    ratioCDOverBC: { min: 110,   max: 170 },
+    ratioDEOverBC: { min: 38,   max: 91 },
+    ratioFGOverDE: { min: 32.00,   max: 97 },
   }
 };
 
