@@ -68,7 +68,7 @@ window.waveProfiles = {
   ratioDEOverCD: { min: 25,   max: 70.06 }, 
   ratioFGOverEF: { min: 30,   max: 89 }, 
   ratioEFOverDE: { min: 80,   max: 90 }, 
-  ratioCDOverBC: { min: 110,  max: 168.57 }, 
+  ratioCDOverBC: { min: 131,  max: 168.57 }, 
   ratioDEOverBC: { min: 65.71,   max: 98 }, 
   ratioFGOverDE: { min: 34.78,   max: 76.07 }, 
   },
