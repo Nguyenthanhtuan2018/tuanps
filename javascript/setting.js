@@ -72,7 +72,7 @@ window.waveProfiles = {
   ratioDEOverBC: { min: 65,   max: 98 }, 
   ratioFGOverDE: { min: 34,   max: 76 }, 
   },
-  rule_11: { // áp dụng cho 3 nền và xanh lá
+  rule_11: { // Rule 11 cho xanh lá (dự kiến cho 3 nền nếu được)
     ratioBCOverAB: { min: 35,   max: 87 },
     ratioDEOverCD: { min: 25.00,   max: 85.92 },
     ratioFGOverEF: { min: 30,   max: 80.39 },
@@ -80,6 +80,15 @@ window.waveProfiles = {
     ratioCDOverBC: { min: 110,   max: 170 },
     ratioDEOverBC: { min: 38,   max: 91 },
     ratioFGOverDE: { min: 32.00,   max: 97 },
+  },
+  rule_11_3nen: { // rule 11 cho TH 3 nền
+    ratioBCOverAB: { min: 48,   max: 72 },
+    ratioDEOverCD: { min: 39,   max: 73 },
+    ratioFGOverEF: { min: 32,   max: 52 },
+    ratioEFOverDE: { min: 186,  max: 264 },
+    ratioCDOverBC: { min: 113,  max: 167 },
+    ratioDEOverBC: { min: 56,   max: 90 },
+    ratioFGOverDE: { min: 62,   max: 96 },
   }
 };
 

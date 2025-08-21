@@ -66,7 +66,8 @@
         <option value="sideway">3 nền</option>
         <option value="con_meo">Con mèo</option>
         <option value="xanh_duong">Xanh dương</option>
-        <option value="rule_11">Rule 11</option>
+        <option value="rule_11">Rule 11 cho xanh lá</option>
+        <option value="rule_11_3nen">Rule 11 cho 3 nền</option>
         <option value="rule_10">Rule 10</option>
       `;
       sel.value = window.waveActiveProfile || "tiep_dien";
