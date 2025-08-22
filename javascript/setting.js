@@ -19,7 +19,7 @@ window.waveProfiles = {
   tiep_dien: { // thuật toán sóng tiếp diễn xanh lá
     ratioBCOverAB: { min: 35,   max: 70 },
     ratioDEOverCD: { min: 25.00,   max: 85.92 },
-    ratioFGOverEF: { min: 25,   max: 80.39 },
+    ratioFGOverEF: { min: 35,   max: 80.39 },
     ratioEFOverDE: { min: 70.00,   max: 180 },
     ratioCDOverBC: { min: 110,   max: 170 },
     ratioDEOverBC: { min: 38,   max: 91 },
@@ -75,11 +75,11 @@ window.waveProfiles = {
   rule_11: { // Rule 11 cho xanh lá (dự kiến cho 3 nền nếu được)
     ratioBCOverAB: { min: 35,   max: 75 },
     ratioDEOverCD: { min: 32,   max: 68 },
-    ratioFGOverEF: { min: 25,   max: 75 },
+    ratioFGOverEF: { min: 35,   max: 75 },
     ratioEFOverDE: { min: 117,   max: 158 },
     ratioCDOverBC: { min: 111,   max: 169 },
     ratioDEOverBC: { min: 38,   max: 91 },
-    ratioFGOverDE: { min: 34,   max: 87 },
+    ratioFGOverDE: { min: 50,   max: 87 },
   },
   rule_11_3nen: { // rule 11 cho TH 3 nền
     ratioBCOverAB: { min: 48,   max: 75 },
