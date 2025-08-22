@@ -255,7 +255,7 @@ socket.on("connect", () => {
   console.log("Kết nối thành công!");
   socket.emit("regs", JSON.stringify({
     action: "join",
-    list: "41I1F8000"
+    list: "VN30F2509"
   }));
 });
 
