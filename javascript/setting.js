@@ -73,11 +73,11 @@ window.waveProfiles = {
   ratioFGOverDE: { min: 34,   max: 76 }, 
   },
   rule_11: { // Rule 11 cho xanh lá (dự kiến cho 3 nền nếu được)
-    ratioBCOverAB: { min: 35,   max: 75 },
+    ratioBCOverAB: { min: 35,   max: 57 },
     ratioDEOverCD: { min: 32,   max: 68 },
     ratioFGOverEF: { min: 35,   max: 75 },
     ratioEFOverDE: { min: 117,   max: 158 },
-    ratioCDOverBC: { min: 111,   max: 169 },
+    ratioCDOverBC: { min: 111,   max: 162 },
     ratioDEOverBC: { min: 38,   max: 91 },
     ratioFGOverDE: { min: 50,   max: 87 },
   },
