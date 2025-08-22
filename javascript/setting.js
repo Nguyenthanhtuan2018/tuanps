@@ -82,13 +82,13 @@ window.waveProfiles = {
     ratioFGOverDE: { min: 50,   max: 87 },
   },
   rule_11_3nen: { // rule 11 cho TH 3 nền
-    ratioBCOverAB: { min: 48,   max: 75 },
-    ratioDEOverCD: { min: 38,   max: 73 },
+    ratioBCOverAB: { min: 48,   max: 72 },
+    ratioDEOverCD: { min: 39,   max: 73 },
     ratioFGOverEF: { min: 32,   max: 52 },
-    ratioEFOverDE: { min: 173,  max: 264 },
-    ratioCDOverBC: { min: 113,  max: 169 },
+    ratioEFOverDE: { min: 186,  max: 264 },
+    ratioCDOverBC: { min: 113,  max: 167 },
     ratioDEOverBC: { min: 56,   max: 90 },
-    ratioFGOverDE: { min: 56,   max: 96 },
+    ratioFGOverDE: { min: 62,   max: 96 },
   }
 };
 
